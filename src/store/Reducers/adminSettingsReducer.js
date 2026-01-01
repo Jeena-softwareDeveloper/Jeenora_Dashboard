@@ -37,7 +37,7 @@ export const updateMenuDisplaySettings = createAsyncThunk(
 export const adminSettingsReducer = createSlice({
     name: 'adminSettings',
     initialState: {
-        menuDisplaySettings: {},
+        menuDisplaySettings: localStorage.getItem('menuDisplaySettings') ? JSON.parse(localStorage.getItem('menuDisplaySettings')) : {},
         loading: false,
         isLoaded: false,
         error: ''
@@ -55,7 +55,9 @@ export const adminSettingsReducer = createSlice({
             .addCase(getMenuDisplaySettings.fulfilled, (state, { payload }) => {
                 state.loading = false;
                 state.isLoaded = true;
-                state.menuDisplaySettings = payload.setting?.settingValue || {};
+                const settings = payload.setting?.settingValue || {};
+                state.menuDisplaySettings = settings;
+                localStorage.setItem('menuDisplaySettings', JSON.stringify(settings));
             })
             .addCase(getMenuDisplaySettings.rejected, (state, { payload }) => {
                 state.loading = false;
@@ -73,6 +75,7 @@ export const adminSettingsReducer = createSlice({
                 // If it returns { message: '...', setting: { settingValue: {...} } }
                 if (payload.setting?.settingValue) {
                     state.menuDisplaySettings = payload.setting.settingValue;
+                    localStorage.setItem('menuDisplaySettings', JSON.stringify(payload.setting.settingValue));
                 }
             })
             .addCase(updateMenuDisplaySettings.rejected, (state, { payload }) => {
