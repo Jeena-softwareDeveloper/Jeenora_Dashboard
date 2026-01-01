@@ -5,39 +5,39 @@ import { jwtDecode } from "jwt-decode";
 // Login Actions
 export const admin_login = createAsyncThunk(
     'auth/admin_login',
-    async(info, {rejectWithValue, fulfillWithValue}) => {
+    async (info, { rejectWithValue, fulfillWithValue }) => {
         try {
-            const {data} = await api.post('/admin-login', info, {withCredentials: true})
+            const { data } = await api.post('/admin-login', info, { withCredentials: true })
             localStorage.setItem('accessToken', data.token)
             return fulfillWithValue(data)
         } catch (error) {
-            return rejectWithValue(error.response?.data || {error: 'Login failed'})
+            return rejectWithValue(error.response?.data || { error: 'Login failed' })
         }
     }
 )
 
 export const seller_login = createAsyncThunk(
     'auth/seller_login',
-    async(info, {rejectWithValue, fulfillWithValue}) => {
+    async (info, { rejectWithValue, fulfillWithValue }) => {
         try {
-            const {data} = await api.post('/seller-login', info, {withCredentials: true})
+            const { data } = await api.post('/seller-login', info, { withCredentials: true })
             localStorage.setItem('accessToken', data.token)
             return fulfillWithValue(data)
         } catch (error) {
-            return rejectWithValue(error.response?.data || {error: 'Login failed'})
+            return rejectWithValue(error.response?.data || { error: 'Login failed' })
         }
     }
 )
 
 export const hire_login = createAsyncThunk(
     'auth/hire_login',
-    async(info, {rejectWithValue, fulfillWithValue}) => {
+    async (info, { rejectWithValue, fulfillWithValue }) => {
         try {
-            const {data} = await api.post('/hire-login', info, {withCredentials: true})
+            const { data } = await api.post('/hire-login', info, { withCredentials: true })
             localStorage.setItem('accessToken', data.token)
             return fulfillWithValue(data)
         } catch (error) {
-            return rejectWithValue(error.response?.data || {error: 'Login failed'})
+            return rejectWithValue(error.response?.data || { error: 'Login failed' })
         }
     }
 )
@@ -45,26 +45,26 @@ export const hire_login = createAsyncThunk(
 // ✅ CORRECTED: Registration Actions - Fixed naming
 export const hire_register = createAsyncThunk(
     'auth/hire_register',
-    async(info, {rejectWithValue, fulfillWithValue}) => {
+    async (info, { rejectWithValue, fulfillWithValue }) => {
         try {
-            const {data} = await api.post('/hire-register', info, {withCredentials: true})
+            const { data } = await api.post('/hire-register', info, { withCredentials: true })
             localStorage.setItem('accessToken', data.token)
             return fulfillWithValue(data)
         } catch (error) {
-            return rejectWithValue(error.response?.data || {error: 'Registration failed'})
+            return rejectWithValue(error.response?.data || { error: 'Registration failed' })
         }
     }
 )
 
 export const seller_register = createAsyncThunk(
     'auth/seller_register',
-    async(info, {rejectWithValue, fulfillWithValue}) => {
+    async (info, { rejectWithValue, fulfillWithValue }) => {
         try {
-            const {data} = await api.post('/seller-register', info, {withCredentials: true})
+            const { data } = await api.post('/seller-register', info, { withCredentials: true })
             localStorage.setItem('accessToken', data.token)
             return fulfillWithValue(data)
         } catch (error) {
-            return rejectWithValue(error.response?.data || {error: 'Registration failed'})
+            return rejectWithValue(error.response?.data || { error: 'Registration failed' })
         }
     }
 )
@@ -72,43 +72,43 @@ export const seller_register = createAsyncThunk(
 // User Profile Actions
 export const get_user_info = createAsyncThunk(
     'auth/get_user_info',
-    async(_, {rejectWithValue, fulfillWithValue}) => {
+    async (_, { rejectWithValue, fulfillWithValue }) => {
         try {
-            const {data} = await api.get('/get-user', {withCredentials: true})
+            const { data } = await api.get('/get-user', { withCredentials: true })
             return fulfillWithValue(data)
         } catch (error) {
-            return rejectWithValue(error.response?.data || {error: 'Failed to get user info'})
+            return rejectWithValue(error.response?.data || { error: 'Failed to get user info' })
         }
     }
 )
 
 export const profile_image_upload = createAsyncThunk(
     'auth/profile_image_upload',
-    async(image, {rejectWithValue, fulfillWithValue}) => {
+    async (image, { rejectWithValue, fulfillWithValue }) => {
         try {
-            const {data} = await api.post('/profile-image-upload', image, {withCredentials: true})
+            const { data } = await api.post('/profile-image-upload', image, { withCredentials: true })
             return fulfillWithValue(data)
         } catch (error) {
-            return rejectWithValue(error.response?.data || {error: 'Image upload failed'})
+            return rejectWithValue(error.response?.data || { error: 'Image upload failed' })
         }
     }
 )
 
 export const profile_info_add = createAsyncThunk(
     'auth/profile_info_add',
-    async(info, {rejectWithValue, fulfillWithValue}) => {
+    async (info, { rejectWithValue, fulfillWithValue }) => {
         try {
-            const {data} = await api.post('/profile-info-add', info, {withCredentials: true})
+            const { data } = await api.post('/profile-info-add', info, { withCredentials: true })
             return fulfillWithValue(data)
         } catch (error) {
-            return rejectWithValue(error.response?.data || {error: 'Profile update failed'})
+            return rejectWithValue(error.response?.data || { error: 'Profile update failed' })
         }
     }
 )
 
 // Logout Action
 export const logout = createAsyncThunk(
-    'auth/logout', 
+    'auth/logout',
     async (_, { rejectWithValue }) => {
         try {
             const { data } = await api.get('/logout', { withCredentials: true });
@@ -116,7 +116,7 @@ export const logout = createAsyncThunk(
             return data;
         } catch (error) {
             localStorage.removeItem('accessToken');
-            return rejectWithValue(error.response?.data || {error: 'Logout failed'});
+            return rejectWithValue(error.response?.data || { error: 'Logout failed' });
         }
     }
 );
@@ -127,7 +127,7 @@ const returnRole = (token) => {
         try {
             const decodeToken = jwtDecode(token);
             const expireTime = new Date(decodeToken.exp * 1000);
-            
+
             if (new Date() > expireTime) {
                 localStorage.removeItem('accessToken');
                 return '';
@@ -150,7 +150,7 @@ export const authReducer = createSlice({
         successMessage: '',
         errorMessage: '',
         loader: false,
-        userInfo: '',
+        userInfo: localStorage.getItem('userInfo') ? JSON.parse(localStorage.getItem('userInfo')) : '',
         role: returnRole(localStorage.getItem('accessToken')),
         token: localStorage.getItem('accessToken')
     },
@@ -166,6 +166,7 @@ export const authReducer = createSlice({
             state.role = '';
             state.token = null;
             localStorage.removeItem('accessToken');
+            localStorage.removeItem('userInfo');
         }
     },
     extraReducers: (builder) => {
@@ -250,6 +251,7 @@ export const authReducer = createSlice({
             // Profile Cases
             .addCase(get_user_info.fulfilled, (state, { payload }) => {
                 state.userInfo = payload.userInfo;
+                localStorage.setItem('userInfo', JSON.stringify(payload.userInfo));
             })
 
             .addCase(profile_image_upload.pending, (state) => {
@@ -258,6 +260,7 @@ export const authReducer = createSlice({
             .addCase(profile_image_upload.fulfilled, (state, { payload }) => {
                 state.loader = false;
                 state.userInfo = payload.userInfo;
+                localStorage.setItem('userInfo', JSON.stringify(payload.userInfo));
                 state.successMessage = payload.message;
             })
             .addCase(profile_image_upload.rejected, (state) => {
@@ -271,6 +274,7 @@ export const authReducer = createSlice({
                 state.loader = false;
                 state.successMessage = payload.message;
                 state.userInfo = payload.userInfo;
+                localStorage.setItem('userInfo', JSON.stringify(payload.userInfo));
             })
             .addCase(profile_info_add.rejected, (state) => {
                 state.loader = false;
@@ -287,6 +291,7 @@ export const authReducer = createSlice({
                 state.token = null;
                 state.role = '';
                 state.userInfo = '';
+                localStorage.removeItem('userInfo');
             })
             .addCase(logout.fulfilled, (state, { payload }) => {
                 state.loader = false;
@@ -294,6 +299,7 @@ export const authReducer = createSlice({
                 state.token = null;
                 state.role = '';
                 state.userInfo = '';
+                localStorage.removeItem('userInfo');
             });
     }
 })
