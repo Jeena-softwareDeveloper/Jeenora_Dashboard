@@ -62,7 +62,7 @@ const MainLayout = () => {
         <Header showSidebar={showSidebar} setShowSidebar={setShowSidebar} />
 
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto p-2">
+        <main className="flex-1 overflow-y-auto bg-green-50 p-2">
           <Outlet />
         </main>
       </div>
