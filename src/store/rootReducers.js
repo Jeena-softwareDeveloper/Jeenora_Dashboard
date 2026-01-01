@@ -20,6 +20,7 @@ import awarenessCampaignReducer from "./Reducers/Awareness/campaignReducer"
 import hireResumeEditorReducer from "./Reducers/Hire/resumeReducer"
 import jobReducer from "./Reducers/Hire/jobReducer";
 import adminResumeReducer from "./Reducers/Hire/adminResumeReducer";
+import adminSettingsReducer from "./Reducers/adminSettingsReducer";
 
 const rootReducer = {
     auth: authReducer,
@@ -43,6 +44,7 @@ const rootReducer = {
     analytics: analyticsReducer,
     editors: hireResumeEditorReducer,
     job: jobReducer,
-    adminResume: adminResumeReducer
+    adminResume: adminResumeReducer,
+    adminSettings: adminSettingsReducer
 }
 export default rootReducer;

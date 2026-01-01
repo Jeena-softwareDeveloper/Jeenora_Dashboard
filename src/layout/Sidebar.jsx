@@ -5,6 +5,7 @@ import { BiChevronRight } from 'react-icons/bi';
 import { IoIosArrowDown, IoIosSettings } from 'react-icons/io';
 import { useDispatch, useSelector } from 'react-redux';
 import logo from '../assets/logo.png';
+import { getMenuDisplaySettings } from '../store/Reducers/adminSettingsReducer';
 
 const Sidebar = ({ showSidebar, setShowSidebar, collapsed, setCollapsed, isMobile }) => {
     const dispatch = useDispatch();
@@ -14,7 +15,7 @@ const Sidebar = ({ showSidebar, setShowSidebar, collapsed, setCollapsed, isMobil
     const [allNav, setAllNav] = useState([]);
     const [openDropdown, setOpenDropdown] = useState(null);
     const [activeHover, setActiveHover] = useState(null);
-    const [menuDisplaySettings, setMenuDisplaySettings] = useState({});
+    const { menuDisplaySettings } = useSelector(state => state.adminSettings);
     const sidebarRef = useRef(null);
 
     // Handle resize inside Sidebar if needed
@@ -50,29 +51,8 @@ const Sidebar = ({ showSidebar, setShowSidebar, collapsed, setCollapsed, isMobil
 
     // Fetch per-group menu display mode settings
     useEffect(() => {
-        const fetchMenuDisplaySettings = async () => {
-            try {
-                // Import api at the top if not already imported
-                const response = await fetch('http://localhost:5000/api/admin/settings/menuDisplayMode', {
-                    credentials: 'include',
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
-                    }
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log('Fetched menu display settings:', data.setting?.settingValue);
-                    setMenuDisplaySettings(data.setting?.settingValue || {});
-                } else {
-                    console.log('Failed to fetch settings, status:', response.status);
-                }
-            } catch (error) {
-                console.error('Error fetching menu display settings:', error);
-                console.log('Using default menu display settings');
-            }
-        };
-        fetchMenuDisplaySettings();
-    }, []);
+        dispatch(getMenuDisplaySettings());
+    }, [dispatch]);
 
     // Load navigation
     useEffect(() => {
