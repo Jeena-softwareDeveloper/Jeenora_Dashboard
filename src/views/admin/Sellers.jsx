@@ -7,7 +7,7 @@ import { get_active_sellers, admin_create_seller, update_seller_permissions, upd
 import { allNav } from '../../navigation/allNav';
 import toast from 'react-hot-toast';
 import { IoMdClose } from "react-icons/io";
-import api from '../../api/api';
+import { getMenuDisplaySettings, updateMenuDisplaySettings } from '../../store/Reducers/adminSettingsReducer';
 
 const Sellers = () => {
     const dispatch = useDispatch()
@@ -27,7 +27,7 @@ const Sellers = () => {
         password: '',
         permissions: []
     });
-    const [menuDisplaySettings, setMenuDisplaySettings] = useState({});
+    const { menuDisplaySettings, isLoaded } = useSelector(state => state.adminSettings);
 
     // Get all parent menus with children (menu groups)
     const getMenuGroups = () => {
@@ -47,16 +47,10 @@ const Sellers = () => {
 
     // Fetch current menu display settings on mount
     useEffect(() => {
-        const fetchMenuDisplaySettings = async () => {
-            try {
-                const { data } = await api.get('/admin/settings/menuDisplayMode');
-                setMenuDisplaySettings(data.setting?.settingValue || {});
-            } catch (error) {
-                console.log('Using default menu display settings');
-            }
-        };
-        fetchMenuDisplaySettings();
-    }, []);
+        if (!isLoaded) {
+            dispatch(getMenuDisplaySettings());
+        }
+    }, [dispatch, isLoaded]);
 
     useEffect(() => {
         const obj = {
@@ -146,9 +140,7 @@ const Sellers = () => {
         try {
             const newSettings = { ...menuDisplaySettings, [menuId]: mode };
             console.log('Saving menu display settings:', newSettings);
-            const response = await api.post('/admin/settings/menu-display-mode', { menuGroupSettings: newSettings });
-            console.log('Save response:', response.data);
-            setMenuDisplaySettings(newSettings);
+            await dispatch(updateMenuDisplaySettings({ menuGroupSettings: newSettings })).unwrap();
             toast.success(`Menu display mode updated`);
         } catch (error) {
             console.error('Failed to save menu display mode:', error);

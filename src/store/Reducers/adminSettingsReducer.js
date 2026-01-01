@@ -10,6 +10,27 @@ export const getMenuDisplaySettings = createAsyncThunk(
         } catch (error) {
             return rejectWithValue(error.response.data);
         }
+    },
+    {
+        condition: (_, { getState }) => {
+            const { adminSettings } = getState();
+            // Perform check: if already loaded or currently loading, cancel the request
+            if (adminSettings.loading || adminSettings.isLoaded) {
+                return false;
+            }
+        }
+    }
+);
+
+export const updateMenuDisplaySettings = createAsyncThunk(
+    'adminSettings/updateMenuDisplaySettings',
+    async (payload, { rejectWithValue, fulfillWithValue }) => {
+        try {
+            const { data } = await api.post('/admin/settings/menu-display-mode', payload, { withCredentials: true });
+            return fulfillWithValue(data); // data likely contains the updated setting
+        } catch (error) {
+            return rejectWithValue(error.response.data);
+        }
     }
 );
 
@@ -39,6 +60,24 @@ export const adminSettingsReducer = createSlice({
             .addCase(getMenuDisplaySettings.rejected, (state, { payload }) => {
                 state.loading = false;
                 state.error = payload?.error || 'Failed to fetch settings';
+            })
+            .addCase(updateMenuDisplaySettings.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(updateMenuDisplaySettings.fulfilled, (state, { payload }) => {
+                state.loading = false;
+                // Assuming payload.setting.settingValue contains the new full object, or we merge it.
+                // Based on Sellers.jsx: const response = await api.post...
+                // response.data likely has success message and maybe the data.
+                // Ideally backend returns the updated setting object.
+                // If it returns { message: '...', setting: { settingValue: {...} } }
+                if (payload.setting?.settingValue) {
+                    state.menuDisplaySettings = payload.setting.settingValue;
+                }
+            })
+            .addCase(updateMenuDisplaySettings.rejected, (state, { payload }) => {
+                state.loading = false;
+                state.error = payload?.error || 'Failed to update settings';
             });
     }
 });
