@@ -15,7 +15,7 @@ const Sidebar = ({ showSidebar, setShowSidebar, collapsed, setCollapsed, isMobil
     const [allNav, setAllNav] = useState([]);
     const [openDropdown, setOpenDropdown] = useState(null);
     const [activeHover, setActiveHover] = useState(null);
-    const { menuDisplaySettings } = useSelector(state => state.adminSettings);
+    const { menuDisplaySettings, isLoaded } = useSelector(state => state.adminSettings);
     const sidebarRef = useRef(null);
 
     // Handle resize inside Sidebar if needed
@@ -51,8 +51,10 @@ const Sidebar = ({ showSidebar, setShowSidebar, collapsed, setCollapsed, isMobil
 
     // Fetch per-group menu display mode settings
     useEffect(() => {
-        dispatch(getMenuDisplaySettings());
-    }, [dispatch]);
+        if (!isLoaded) {
+            dispatch(getMenuDisplaySettings());
+        }
+    }, [dispatch, isLoaded]);
 
     // Load navigation
     useEffect(() => {

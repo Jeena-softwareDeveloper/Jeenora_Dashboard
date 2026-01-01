@@ -18,6 +18,7 @@ export const adminSettingsReducer = createSlice({
     initialState: {
         menuDisplaySettings: {},
         loading: false,
+        isLoaded: false,
         error: ''
     },
     reducers: {
@@ -32,6 +33,7 @@ export const adminSettingsReducer = createSlice({
             })
             .addCase(getMenuDisplaySettings.fulfilled, (state, { payload }) => {
                 state.loading = false;
+                state.isLoaded = true;
                 state.menuDisplaySettings = payload.setting?.settingValue || {};
             })
             .addCase(getMenuDisplaySettings.rejected, (state, { payload }) => {
