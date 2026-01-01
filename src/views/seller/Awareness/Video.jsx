@@ -49,9 +49,9 @@ const VideoManager = () => {
   // Filter videos based on search
   const filteredVideos = useMemo(() => {
     if (!videos) return [];
-    
+
     if (!searchTerm) return videos;
-    
+
     return videos.filter(video =>
       video.heading?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       video.secondaryHeading?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -95,37 +95,37 @@ const VideoManager = () => {
     setFormData(prev => ({ ...prev, [name]: files ? files[0] : value }));
   };
 
-const handleSubmit = () => {
-  if (!formData.heading?.trim() || !formData.author?.trim()) {
-    toast.error('Heading and author are required');
-    return;
-  }
+  const handleSubmit = () => {
+    if (!formData.heading?.trim() || !formData.author?.trim()) {
+      toast.error('Heading and author are required');
+      return;
+    }
 
-  // Video is required only when creating a new video
-  if (!editingVideo && !formData.videoFile) {
-    toast.error('Video file is required');
-    return;
-  }
+    // Video is required only when creating a new video
+    if (!editingVideo && !formData.videoFile) {
+      toast.error('Video file is required');
+      return;
+    }
 
-  const data = new FormData();
-  data.append('heading', formData.heading.trim());
-  data.append('author', formData.author.trim());
-  if (formData.secondaryHeading?.trim()) data.append('secondaryHeading', formData.secondaryHeading.trim());
-  if (formData.views) data.append('views', formData.views);
+    const data = new FormData();
+    data.append('heading', formData.heading.trim());
+    data.append('author', formData.author.trim());
+    if (formData.secondaryHeading?.trim()) data.append('secondaryHeading', formData.secondaryHeading.trim());
+    if (formData.views) data.append('views', formData.views);
 
-  // Append video only if user selected a new file
-  if (formData.videoFile instanceof File) {
-    data.append('video', formData.videoFile, formData.videoFile.name);
-  }
+    // Append video only if user selected a new file
+    if (formData.videoFile instanceof File) {
+      data.append('video', formData.videoFile, formData.videoFile.name);
+    }
 
-  if (editingVideo) {
-    dispatch(updateVideo({ id: editingVideo._id, formData: data }));
-  } else {
-    dispatch(addVideo(data));
-  }
+    if (editingVideo) {
+      dispatch(updateVideo({ id: editingVideo._id, formData: data }));
+    } else {
+      dispatch(addVideo(data));
+    }
 
-  closeModal();
-};
+    closeModal();
+  };
 
 
 
@@ -144,7 +144,7 @@ const handleSubmit = () => {
 
   const handleToggleStatus = (video) => {
     const action = video.isActive ? 'deactivate' : 'activate';
-    
+
     showDialog({
       title: `${action.charAt(0).toUpperCase() + action.slice(1)} Video`,
       message: `Are you sure you want to ${action} this video?`,
@@ -159,14 +159,23 @@ const handleSubmit = () => {
 
   return (
     <div className=" bg-green-50 p-4 sm:p-6">
-      
+
       {/* ---------------- Header ---------------- */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6 lg:mb-8">
-        <div className="w-full lg:w-auto">
-          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">Organic Videos</h1>
-          <p className="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">Manage organic farming tutorial videos</p>
+        <div className="w-full lg:w-auto flex justify-between items-center">
+          <div>
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">Organic Videos</h1>
+            <p className="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">Manage organic farming tutorial videos</p>
+          </div>
+          {/* Mobile Add Button (Icon Only) */}
+          <button
+            onClick={() => openModal()}
+            className="lg:hidden bg-[#236F21] text-white p-2 rounded-lg hover:bg-[#1B5C1A] transition-colors shadow-sm ml-4 flex-shrink-0"
+          >
+            <Plus size={24} />
+          </button>
         </div>
-        
+
         <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
           <div className="relative w-full lg:w-64">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
@@ -181,10 +190,10 @@ const handleSubmit = () => {
 
           <button
             onClick={() => openModal()}
-            className="bg-[#236F21] text-white px-4 py-2 rounded-lg hover:bg-[#1B5C1A] transition-colors flex items-center gap-2 justify-center shadow-sm w-full sm:w-auto"
+            className="hidden lg:flex bg-[#236F21] text-white px-4 py-2 rounded-lg hover:bg-[#1B5C1A] transition-colors items-center gap-2 justify-center shadow-sm"
           >
             <Plus size={20} />
-            <span className="hidden sm:inline">Add Video</span>
+            <span>Add Video</span>
           </button>
         </div>
       </div>
@@ -220,10 +229,10 @@ const handleSubmit = () => {
                       <td className="p-4 text-gray-900">{video.views}</td>
                       <td className="p-4">
                         {video.video && (
-                          <video 
-                            width="120" 
-                            height="80" 
-                            controls 
+                          <video
+                            width="120"
+                            height="80"
+                            controls
                             className="rounded-lg border border-gray-200"
                           >
                             <source src={video.video} type="video/mp4" />
@@ -234,26 +243,25 @@ const handleSubmit = () => {
                       <td className="p-4">
                         <button
                           onClick={() => handleToggleStatus(video)}
-                          className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                            video.isActive
-                              ? 'bg-green-600 text-white hover:bg-green-700'
-                              : 'bg-red-600 text-white hover:bg-red-700'
-                          }`}
+                          className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${video.isActive
+                            ? 'bg-green-600 text-white hover:bg-green-700'
+                            : 'bg-red-600 text-white hover:bg-red-700'
+                            }`}
                         >
                           {video.isActive ? 'Active' : 'Inactive'}
                         </button>
                       </td>
                       <td className="p-4">
                         <div className="flex gap-2">
-                          <button 
-                            onClick={() => openModal(video)} 
+                          <button
+                            onClick={() => openModal(video)}
                             className="p-2 text-[#236F21] hover:bg-green-50 rounded-lg transition-colors border border-[#236F21] hover:border-[#1B5C1A]"
                             title="Edit"
                           >
                             <Edit size={16} />
                           </button>
-                          <button 
-                            onClick={() => handleDelete(video._id)} 
+                          <button
+                            onClick={() => handleDelete(video._id)}
                             className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-red-600 hover:border-red-700"
                             title="Delete"
                           >
@@ -284,10 +292,10 @@ const handleSubmit = () => {
                         {/* Video Preview */}
                         <div className="flex-shrink-0">
                           {video.video && (
-                            <video 
-                              width="80" 
-                              height="60" 
-                              controls 
+                            <video
+                              width="80"
+                              height="60"
+                              controls
                               className="rounded-lg border border-gray-200"
                             >
                               <source src={video.video} type="video/mp4" />
@@ -300,11 +308,10 @@ const handleSubmit = () => {
                         <div className="flex-1 min-w-0">
                           <h3 className="font-medium text-gray-900 text-sm line-clamp-2 mb-1">{video.heading}</h3>
                           <div className="flex items-center gap-2">
-                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                              video.isActive 
-                                ? 'bg-green-100 text-green-800 border border-green-200' 
-                                : 'bg-red-100 text-red-800 border border-red-200'
-                            }`}>
+                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${video.isActive
+                              ? 'bg-green-100 text-green-800 border border-green-200'
+                              : 'bg-red-100 text-red-800 border border-red-200'
+                              }`}>
                               {video.isActive ? 'Active' : 'Inactive'}
                             </span>
                           </div>
@@ -328,15 +335,14 @@ const handleSubmit = () => {
                       <div className="flex items-center justify-between pt-3 border-t border-gray-100">
                         <button
                           onClick={() => handleToggleStatus(video)}
-                          className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-                            video.isActive
-                              ? 'bg-orange-100 text-orange-700 hover:bg-orange-200'
-                              : 'bg-green-100 text-green-700 hover:bg-green-200'
-                          }`}
+                          className={`px-3 py-1 rounded text-xs font-medium transition-colors ${video.isActive
+                            ? 'bg-orange-100 text-orange-700 hover:bg-orange-200'
+                            : 'bg-green-100 text-green-700 hover:bg-green-200'
+                            }`}
                         >
                           {video.isActive ? 'Deactivate' : 'Activate'}
                         </button>
-                        
+
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => openModal(video)}
@@ -372,8 +378,8 @@ const handleSubmit = () => {
               {searchTerm ? 'No videos found' : 'No videos yet'}
             </h3>
             <p className="text-gray-600 mb-6 text-sm sm:text-base">
-              {searchTerm 
-                ? 'Try adjusting your search criteria' 
+              {searchTerm
+                ? 'Try adjusting your search criteria'
                 : 'Get started by creating your first video'
               }
             </p>
@@ -392,20 +398,20 @@ const handleSubmit = () => {
       {/* ---------------- Modal ---------------- */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden mx-2 sm:mx-4">
-            <div className="flex justify-between items-center p-4 sm:p-6 border-b">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden mx-2 sm:mx-4 flex flex-col">
+            <div className="flex justify-between items-center p-4 sm:p-6 border-b flex-shrink-0">
               <h2 className="text-lg sm:text-xl font-semibold">
                 {editingVideo ? 'Edit Video' : 'Create New Video'}
               </h2>
-              <button 
-                onClick={closeModal} 
+              <button
+                onClick={closeModal}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
               >
                 <X size={20} />
               </button>
             </div>
 
-            <div className="p-4 sm:p-6 space-y-4">
+            <div className="p-4 sm:p-6 space-y-4 overflow-y-auto flex-1 no-scrollbar">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Heading <span className="text-red-500">*</span>
@@ -478,16 +484,16 @@ const handleSubmit = () => {
                 />
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-3 justify-end pt-6 border-t border-gray-200 mt-6">
-                <button 
-                  onClick={closeModal} 
-                  className="px-4 sm:px-6 py-2 text-gray-600 hover:text-gray-800 transition-colors border border-gray-300 rounded-lg hover:border-gray-400 text-sm sm:text-base order-2 sm:order-1"
+              <div className="flex gap-3 justify-end pt-6 border-t border-gray-200 mt-6">
+                <button
+                  onClick={closeModal}
+                  className="flex-1 sm:flex-none px-4 sm:px-6 py-2 text-gray-600 hover:text-gray-800 transition-colors border border-gray-300 rounded-lg hover:border-gray-400 text-sm sm:text-base"
                 >
                   Cancel
                 </button>
-                <button 
-                  onClick={handleSubmit} 
-                  className="bg-[#236F21] text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-[#1B5C1A] transition-colors flex items-center gap-2 justify-center shadow-sm text-sm sm:text-base order-1 sm:order-2"
+                <button
+                  onClick={handleSubmit}
+                  className="flex-1 sm:flex-none bg-[#236F21] text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-[#1B5C1A] transition-colors flex items-center gap-2 justify-center shadow-sm text-sm sm:text-base"
                 >
                   {editingVideo ? 'Update Video' : 'Create Video'}
                 </button>

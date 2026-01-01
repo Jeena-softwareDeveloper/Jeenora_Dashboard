@@ -9,11 +9,11 @@ import {
   clearMessages,
   toggleBannerStatus
 } from '../../../store/Reducers/Awareness/bannerReducer';
-import { 
-  Plus, 
-  Edit, 
-  Trash2, 
-  X, 
+import {
+  Plus,
+  Edit,
+  Trash2,
+  X,
   Image as ImageIcon,
   Upload,
   Loader,
@@ -57,9 +57,9 @@ function Banners() {
   // Filter banners based on search
   const filteredBanners = useMemo(() => {
     if (!banners) return [];
-    
+
     if (!searchTerm) return banners;
-    
+
     return banners.filter(banner =>
       banner.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       banner.description.toLowerCase().includes(searchTerm.toLowerCase())
@@ -69,11 +69,11 @@ function Banners() {
   // Handle form change
   const handleChange = (e) => {
     const { name, value, files } = e.target;
-    
+
     if (name === 'image') {
       const file = files[0];
       setForm({ ...form, image: file });
-      
+
       if (file) {
         const reader = new FileReader();
         reader.onload = (e) => setImagePreview(e.target.result);
@@ -90,10 +90,10 @@ function Banners() {
   const openModal = (banner = null) => {
     if (banner) {
       setEditId(banner._id);
-      setForm({ 
-        title: banner.title, 
-        description: banner.description, 
-        image: null 
+      setForm({
+        title: banner.title,
+        description: banner.description,
+        image: null
       });
       setImagePreview(banner.image);
     } else {
@@ -119,7 +119,7 @@ function Banners() {
   // Add or Update banner
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     const formData = new FormData();
     formData.append('title', form.title);
     formData.append('description', form.description);
@@ -128,12 +128,12 @@ function Banners() {
     try {
       if (editId) {
         await dispatch(updateBanner({ id: editId, info: formData })).unwrap();
-     //   toast.success('Banner updated successfully!');
+        //   toast.success('Banner updated successfully!');
       } else {
         await dispatch(addBanner(formData)).unwrap();
-  //      toast.success('Banner created successfully!');
+        //      toast.success('Banner created successfully!');
       }
-      
+
       dispatch(getBanners());
       resetForm();
       setShowModal(false);
@@ -153,7 +153,7 @@ function Banners() {
       onConfirm: async () => {
         try {
           await dispatch(deleteBanner(id)).unwrap();
-        //  toast.success('Banner deleted successfully!');
+          //  toast.success('Banner deleted successfully!');
           dispatch(getBanners());
         } catch (error) {
           toast.error('Failed to delete banner');
@@ -167,7 +167,7 @@ function Banners() {
   // Toggle banner status with confirmation
   const handleToggleStatus = async (banner) => {
     const action = banner.isActive ? 'deactivate' : 'activate';
-    
+
     showDialog({
       title: `${action.charAt(0).toUpperCase() + action.slice(1)} Banner`,
       message: `Are you sure you want to ${action} this banner?`,
@@ -194,12 +194,25 @@ function Banners() {
   return (
     <div className=" bg-green-50 p-4 sm:p-6">
       {/* Header with Search and Add Button */}
+      {/* Header with Search and Add Button */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6 lg:mb-8">
-        <div className="w-full lg:w-auto">
-          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">Awareness Banners</h1>
-          <p className="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">Manage your awareness campaign banners</p>
+        {/* Title Section & Mobile Add Button */}
+        <div className="w-full lg:w-auto flex justify-between items-center">
+          <div>
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">Awareness Banners</h1>
+            <p className="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">Manage your awareness campaign banners</p>
+          </div>
+
+          {/* Mobile Add Button - Icon Only */}
+          <button
+            onClick={() => openModal()}
+            className="lg:hidden bg-[#236F21] text-white p-2 rounded-lg hover:bg-[#1B5C1A] transition-colors shadow-sm flex-shrink-0 ml-4"
+          >
+            <Plus size={24} />
+          </button>
         </div>
-        
+
+        {/* Desktop Actions & Search */}
         <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
           <div className="relative w-full lg:w-64">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
@@ -208,16 +221,17 @@ function Banners() {
               placeholder="Search banners..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 w-full"
+              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#236F21] w-full"
             />
           </div>
 
+          {/* Desktop Add Button */}
           <button
             onClick={() => openModal()}
-            className="bg-[#236F21] text-white px-4 py-2 rounded-lg hover:bg-[#1B5C1A] transition-colors flex items-center gap-2 justify-center shadow-sm w-full sm:w-auto"
+            className="hidden lg:flex bg-[#236F21] text-white px-4 py-2 rounded-lg hover:bg-[#1B5C1A] transition-colors items-center gap-2 justify-center shadow-sm"
           >
             <Plus size={20} />
-            <span className="hidden sm:inline">Add Banner</span>
+            <span>Add Banner</span>
           </button>
         </div>
       </div>
@@ -249,8 +263,8 @@ function Banners() {
               <div key={banner._id} className="grid grid-cols-12 gap-4 p-4 hover:bg-gray-50 transition-colors items-center">
                 {/* Banner Image */}
                 <div className="col-span-2">
-                  <img 
-                    src={getImageUrl(banner.image)} 
+                  <img
+                    src={getImageUrl(banner.image)}
                     alt={banner.title}
                     className="w-16 h-12 object-cover rounded-lg border border-gray-200"
                   />
@@ -270,11 +284,10 @@ function Banners() {
                 <div className="col-span-2 flex items-center justify-center gap-2">
                   <button
                     onClick={() => handleToggleStatus(banner)}
-                    className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                      banner.isActive
-                        ? 'bg-green-600 text-white hover:bg-green-700'
-                        : 'bg-red-600 text-white hover:bg-red-700'
-                    }`}
+                    className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${banner.isActive
+                      ? 'bg-green-600 text-white hover:bg-green-700'
+                      : 'bg-red-600 text-white hover:bg-red-700'
+                      }`}
                   >
                     {banner.isActive ? 'Active' : 'Inactive'}
                   </button>
@@ -312,8 +325,8 @@ function Banners() {
                     <div className="flex items-start gap-3 mb-3">
                       {/* Banner Image */}
                       <div className="flex-shrink-0">
-                        <img 
-                          src={getImageUrl(banner.image)} 
+                        <img
+                          src={getImageUrl(banner.image)}
                           alt={banner.title}
                           className="w-16 h-12 object-cover rounded-lg border border-gray-200"
                         />
@@ -323,11 +336,10 @@ function Banners() {
                       <div className="flex-1 min-w-0">
                         <h3 className="font-medium text-gray-900 text-sm line-clamp-2 mb-1">{banner.title}</h3>
                         <div className="flex items-center gap-2">
-                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                            banner.isActive 
-                              ? 'bg-green-100 text-green-800 border border-green-200' 
-                              : 'bg-red-100 text-red-800 border border-red-200'
-                          }`}>
+                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${banner.isActive
+                            ? 'bg-green-100 text-green-800 border border-green-200'
+                            : 'bg-red-100 text-red-800 border border-red-200'
+                            }`}>
                             {banner.isActive ? 'Active' : 'Inactive'}
                           </span>
                         </div>
@@ -343,15 +355,14 @@ function Banners() {
                     <div className="flex items-center justify-between pt-3 border-t border-gray-100">
                       <button
                         onClick={() => handleToggleStatus(banner)}
-                        className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-                          banner.isActive
-                            ? 'bg-orange-100 text-orange-700 hover:bg-orange-200'
-                            : 'bg-green-100 text-green-700 hover:bg-green-200'
-                        }`}
+                        className={`px-3 py-1 rounded text-xs font-medium transition-colors ${banner.isActive
+                          ? 'bg-orange-100 text-orange-700 hover:bg-orange-200'
+                          : 'bg-green-100 text-green-700 hover:bg-green-200'
+                          }`}
                       >
                         {banner.isActive ? 'Deactivate' : 'Activate'}
                       </button>
-                      
+
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => openModal(banner)}
@@ -385,8 +396,8 @@ function Banners() {
                 {searchTerm ? 'No banners found' : 'No banners yet'}
               </h3>
               <p className="text-gray-600 mb-6 text-sm sm:text-base">
-                {searchTerm 
-                  ? 'Try adjusting your search criteria' 
+                {searchTerm
+                  ? 'Try adjusting your search criteria'
                   : 'Get started by creating your first awareness banner'
                 }
               </p>
@@ -406,8 +417,8 @@ function Banners() {
       {/* Add/Edit Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden mx-2 sm:mx-4">
-            <div className="flex justify-between items-center p-4 sm:p-6 border-b">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] mx-2 sm:mx-4 flex flex-col">
+            <div className="flex justify-between items-center p-4 sm:p-6 border-b flex-shrink-0">
               <h2 className="text-lg sm:text-xl font-semibold">
                 {editId ? 'Edit Banner' : 'Create New Banner'}
               </h2>
@@ -418,8 +429,8 @@ function Banners() {
                 <X size={20} />
               </button>
             </div>
-            
-            <form onSubmit={handleSubmit} className="p-4 sm:p-6 overflow-y-auto">
+
+            <form onSubmit={handleSubmit} className="p-4 sm:p-6 overflow-y-auto flex-1 no-scrollbar">
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -435,7 +446,7 @@ function Banners() {
                     required
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Description
@@ -450,7 +461,7 @@ function Banners() {
                     required
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Banner Image {!editId && <span className="text-red-500">*</span>}
@@ -479,19 +490,19 @@ function Banners() {
                   </div>
                 </div>
               </div>
-              
-              <div className="flex flex-col sm:flex-row gap-3 justify-end pt-6 border-t mt-6">
+
+              <div className="flex gap-3 pt-6 border-t mt-6">
                 <button
                   type="button"
                   onClick={closeModal}
-                  className="px-4 sm:px-6 py-2 text-gray-600 hover:text-gray-800 transition-colors border border-gray-300 rounded-lg hover:border-gray-400 text-sm sm:text-base order-2 sm:order-1"
+                  className="flex-1 sm:flex-none px-4 sm:px-6 py-2 text-gray-600 hover:text-gray-800 transition-colors border border-gray-300 rounded-lg hover:border-gray-400 text-sm sm:text-base"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={loader}
-                  className="bg-[#236F21] text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-[#1B5C1A] disabled:opacity-50 transition-colors flex items-center gap-2 justify-center shadow-sm text-sm sm:text-base order-1 sm:order-2"
+                  className="flex-1 sm:flex-none bg-[#236F21] text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-[#1B5C1A] disabled:opacity-50 transition-colors flex items-center gap-2 justify-center shadow-sm text-sm sm:text-base"
                 >
                   {loader && <Loader size={16} className="animate-spin" />}
                   {editId ? 'Update Banner' : 'Create Banner'}

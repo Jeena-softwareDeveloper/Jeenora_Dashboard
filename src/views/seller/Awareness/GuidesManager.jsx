@@ -49,9 +49,9 @@ const GuidesManager = () => {
   // ---------------- Filter Guides ----------------
   const filteredGuides = useMemo(() => {
     if (!guides) return [];
-    
+
     if (!searchTerm) return guides;
-    
+
     return guides.filter(guide =>
       guide.heading?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       guide.level?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -158,7 +158,7 @@ const GuidesManager = () => {
   // Toggle active/inactive
   const handleToggleStatus = (guide) => {
     const action = guide.isActive ? 'deactivate' : 'activate';
-    
+
     showDialog({
       title: `${action.charAt(0).toUpperCase() + action.slice(1)} Guide`,
       message: `Are you sure you want to ${action} this guide?`,
@@ -176,11 +176,20 @@ const GuidesManager = () => {
 
       {/* ---------------- Header ---------------- */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6 lg:mb-8">
-        <div className="w-full lg:w-auto">
-          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">Guides Manager</h1>
-          <p className="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">Manage guide categories and content</p>
+        <div className="w-full lg:w-auto flex justify-between items-center">
+          <div>
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">Guides Manager</h1>
+            <p className="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">Manage guide categories and content</p>
+          </div>
+          {/* Mobile Create Button (Icon Only) */}
+          <button
+            onClick={() => openGuideModal()}
+            className="lg:hidden bg-[#236F21] text-white p-2 rounded-lg hover:bg-[#1B5C1A] transition-colors shadow-sm ml-4 flex-shrink-0"
+          >
+            <Plus size={24} />
+          </button>
         </div>
-        
+
         <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
           <div className="relative w-full lg:w-64">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
@@ -189,9 +198,18 @@ const GuidesManager = () => {
               placeholder="Search guides..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 w-full"
+              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#236F21] w-full"
             />
           </div>
+
+          {/* Desktop Create Button */}
+          <button
+            onClick={() => openGuideModal()}
+            className="hidden lg:flex bg-[#236F21] text-white px-4 py-2 rounded-lg hover:bg-[#1B5C1A] transition-colors items-center gap-2 justify-center shadow-sm"
+          >
+            <Plus size={20} />
+            <span>Add Guide</span>
+          </button>
         </div>
       </div>
 
@@ -206,24 +224,24 @@ const GuidesManager = () => {
             placeholder="Enter category name"
             className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#236F21] focus:border-[#236F21] text-sm sm:text-base"
           />
-          <button 
-            onClick={handleAddCategory} 
+          <button
+            onClick={handleAddCategory}
             className="bg-[#236F21] text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-[#1B5C1A] transition-colors flex items-center gap-2 justify-center shadow-sm text-sm sm:text-base"
           >
             <Plus size={20} />
             <span className="hidden sm:inline">Add Category</span>
           </button>
         </div>
-        
+
         <div className="space-y-2">
           {categories.map(c => (
             <div key={c._id} className="flex justify-between items-center p-3 sm:p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
               <span className="font-medium text-gray-900 text-sm sm:text-base">{c.name}</span>
-              <button 
-                onClick={() => handleDeleteCategory(c._id)} 
+              <button
+                onClick={() => handleDeleteCategory(c._id)}
                 className="text-red-600 hover:bg-red-50 px-2 sm:px-3 py-1 rounded-lg transition-colors border border-red-600 hover:border-red-700 flex items-center gap-1 sm:gap-2 text-sm"
               >
-                <Trash2 size={14} className="sm:w-4 sm:h-4"/>
+                <Trash2 size={14} className="sm:w-4 sm:h-4" />
                 <span className="hidden sm:inline">Delete</span>
               </button>
             </div>
@@ -235,13 +253,7 @@ const GuidesManager = () => {
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 sm:p-6 border-b border-gray-200">
           <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-0">All Guides</h2>
-          <button 
-            onClick={() => openGuideModal()} 
-            className="bg-[#236F21] text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-[#1B5C1A] transition-colors flex items-center gap-2 justify-center shadow-sm w-full sm:w-auto text-sm sm:text-base"
-          >
-            <Plus size={20} />
-            <span className="hidden sm:inline">Add Guide</span>
-          </button>
+
         </div>
 
         {/* ---------------- Guides Table ---------------- */}
@@ -272,13 +284,12 @@ const GuidesManager = () => {
                       <td className="p-4 text-gray-900 font-medium">{g.category?.name}</td>
                       <td className="p-4 text-gray-900 max-w-xs truncate">{g.heading}</td>
                       <td className="p-4">
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          g.level === 'Beginner' 
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${g.level === 'Beginner'
                             ? 'bg-green-100 text-green-800 border border-green-200'
                             : g.level === 'Intermediate'
-                            ? 'bg-yellow-100 text-yellow-800 border border-yellow-200'
-                            : 'bg-red-100 text-red-800 border border-red-200'
-                        }`}>
+                              ? 'bg-yellow-100 text-yellow-800 border border-yellow-200'
+                              : 'bg-red-100 text-red-800 border border-red-200'
+                          }`}>
                           {g.level}
                         </span>
                       </td>
@@ -286,36 +297,35 @@ const GuidesManager = () => {
                       <td className="p-4 text-gray-600 text-sm max-w-xs truncate">{g.description}</td>
                       <td className="p-4">
                         {g.image && (
-                          <img 
-                            src={g.image} 
-                            alt={g.heading} 
-                            className="w-20 h-14 object-cover rounded-lg border border-gray-200" 
+                          <img
+                            src={g.image}
+                            alt={g.heading}
+                            className="w-20 h-14 object-cover rounded-lg border border-gray-200"
                           />
                         )}
                       </td>
                       <td className="p-4">
                         <button
                           onClick={() => handleToggleStatus(g)}
-                          className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                            g.isActive
+                          className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${g.isActive
                               ? 'bg-green-600 text-white hover:bg-green-700'
                               : 'bg-red-600 text-white hover:bg-red-700'
-                          }`}
+                            }`}
                         >
                           {g.isActive ? 'Active' : 'Inactive'}
                         </button>
                       </td>
                       <td className="p-4">
                         <div className="flex gap-2">
-                          <button 
-                            onClick={() => openGuideModal(g)} 
+                          <button
+                            onClick={() => openGuideModal(g)}
                             className="p-2 text-[#236F21] hover:bg-green-50 rounded-lg transition-colors border border-[#236F21] hover:border-[#1B5C1A]"
                             title="Edit"
                           >
                             <Edit size={16} />
                           </button>
-                          <button 
-                            onClick={() => handleDeleteGuide(g._id)} 
+                          <button
+                            onClick={() => handleDeleteGuide(g._id)}
                             className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-red-600 hover:border-red-700"
                             title="Delete"
                           >
@@ -346,10 +356,10 @@ const GuidesManager = () => {
                         {/* Guide Image */}
                         <div className="flex-shrink-0">
                           {g.image && (
-                            <img 
-                              src={g.image} 
-                              alt={g.heading} 
-                              className="w-16 h-12 object-cover rounded-lg border border-gray-200" 
+                            <img
+                              src={g.image}
+                              alt={g.heading}
+                              className="w-16 h-12 object-cover rounded-lg border border-gray-200"
                             />
                           )}
                         </div>
@@ -358,20 +368,18 @@ const GuidesManager = () => {
                         <div className="flex-1 min-w-0">
                           <h3 className="font-medium text-gray-900 text-sm line-clamp-2 mb-1">{g.heading}</h3>
                           <div className="flex items-center gap-2 flex-wrap">
-                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                              g.level === 'Beginner' 
+                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${g.level === 'Beginner'
                                 ? 'bg-green-100 text-green-800 border border-green-200'
                                 : g.level === 'Intermediate'
-                                ? 'bg-yellow-100 text-yellow-800 border border-yellow-200'
-                                : 'bg-red-100 text-red-800 border border-red-200'
-                            }`}>
+                                  ? 'bg-yellow-100 text-yellow-800 border border-yellow-200'
+                                  : 'bg-red-100 text-red-800 border border-red-200'
+                              }`}>
                               {g.level}
                             </span>
-                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                              g.isActive 
-                                ? 'bg-green-100 text-green-800 border border-green-200' 
+                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${g.isActive
+                                ? 'bg-green-100 text-green-800 border border-green-200'
                                 : 'bg-red-100 text-red-800 border border-red-200'
-                            }`}>
+                              }`}>
                               {g.isActive ? 'Active' : 'Inactive'}
                             </span>
                           </div>
@@ -397,15 +405,14 @@ const GuidesManager = () => {
                       <div className="flex items-center justify-between pt-3 border-t border-gray-100">
                         <button
                           onClick={() => handleToggleStatus(g)}
-                          className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-                            g.isActive
+                          className={`px-3 py-1 rounded text-xs font-medium transition-colors ${g.isActive
                               ? 'bg-orange-100 text-orange-700 hover:bg-orange-200'
                               : 'bg-green-100 text-green-700 hover:bg-green-200'
-                          }`}
+                            }`}
                         >
                           {g.isActive ? 'Deactivate' : 'Activate'}
                         </button>
-                        
+
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => openGuideModal(g)}
@@ -441,8 +448,8 @@ const GuidesManager = () => {
               {searchTerm ? 'No guides found' : 'No guides yet'}
             </h3>
             <p className="text-gray-600 mb-6 text-sm sm:text-base">
-              {searchTerm 
-                ? 'Try adjusting your search criteria' 
+              {searchTerm
+                ? 'Try adjusting your search criteria'
                 : 'Get started by creating your first guide'
               }
             </p>
@@ -461,20 +468,20 @@ const GuidesManager = () => {
       {/* ---------------- Guide Modal ---------------- */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden mx-2 sm:mx-4">
-            <div className="flex justify-between items-center p-4 sm:p-6 border-b">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden mx-2 sm:mx-4 flex flex-col">
+            <div className="flex justify-between items-center p-4 sm:p-6 border-b flex-shrink-0">
               <h2 className="text-lg sm:text-xl font-semibold">
                 {editingGuide ? 'Edit Guide' : 'Create New Guide'}
               </h2>
-              <button 
-                onClick={closeGuideModal} 
+              <button
+                onClick={closeGuideModal}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
               >
                 <X size={20} />
               </button>
             </div>
 
-            <form onSubmit={handleAddOrUpdateGuide} className="p-4 sm:p-6 space-y-4">
+            <form onSubmit={handleAddOrUpdateGuide} className="p-4 sm:p-6 space-y-4 overflow-y-auto flex-1 no-scrollbar">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Category <span className="text-red-500">*</span>
@@ -495,14 +502,14 @@ const GuidesManager = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Heading <span className="text-red-500">*</span>
                 </label>
-                <input 
-                  type="text" 
-                  name="heading" 
-                  value={guideData.heading} 
-                  onChange={handleGuideChange} 
-                  placeholder="Enter guide heading" 
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#236F21] focus:border-[#236F21] text-sm sm:text-base" 
-                  required 
+                <input
+                  type="text"
+                  name="heading"
+                  value={guideData.heading}
+                  onChange={handleGuideChange}
+                  placeholder="Enter guide heading"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#236F21] focus:border-[#236F21] text-sm sm:text-base"
+                  required
                 />
               </div>
 
@@ -528,13 +535,13 @@ const GuidesManager = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Second Heading
                 </label>
-                <input 
-                  type="text" 
-                  name="secondHeading" 
-                  value={guideData.secondHeading} 
-                  onChange={handleGuideChange} 
-                  placeholder="Enter second heading" 
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#236F21] focus:border-[#236F21] text-sm sm:text-base" 
+                <input
+                  type="text"
+                  name="secondHeading"
+                  value={guideData.secondHeading}
+                  onChange={handleGuideChange}
+                  placeholder="Enter second heading"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#236F21] focus:border-[#236F21] text-sm sm:text-base"
                 />
               </div>
 
@@ -542,14 +549,14 @@ const GuidesManager = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Description <span className="text-red-500">*</span>
                 </label>
-                <textarea 
-                  name="description" 
-                  value={guideData.description} 
-                  onChange={handleGuideChange} 
-                  placeholder="Enter guide description" 
+                <textarea
+                  name="description"
+                  value={guideData.description}
+                  onChange={handleGuideChange}
+                  placeholder="Enter guide description"
                   rows={4}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#236F21] focus:border-[#236F21] text-sm sm:text-base" 
-                  required 
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#236F21] focus:border-[#236F21] text-sm sm:text-base"
+                  required
                 />
               </div>
 
@@ -557,26 +564,26 @@ const GuidesManager = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Image
                 </label>
-                <input 
-                  type="file" 
-                  name="image" 
-                  onChange={handleGuideChange} 
+                <input
+                  type="file"
+                  name="image"
+                  onChange={handleGuideChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#236F21] focus:border-[#236F21] text-sm sm:text-base"
                 />
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-3 justify-end pt-6 border-t border-gray-200 mt-6">
-                <button 
-                  type="button" 
-                  onClick={closeGuideModal} 
-                  className="px-4 sm:px-6 py-2 text-gray-600 hover:text-gray-800 transition-colors border border-gray-300 rounded-lg hover:border-gray-400 text-sm sm:text-base order-2 sm:order-1"
+              <div className="flex gap-3 justify-end pt-6 border-t border-gray-200 mt-6">
+                <button
+                  type="button"
+                  onClick={closeGuideModal}
+                  className="flex-1 sm:flex-none px-4 sm:px-6 py-2 text-gray-600 hover:text-gray-800 transition-colors border border-gray-300 rounded-lg hover:border-gray-400 text-sm sm:text-base"
                 >
                   Cancel
                 </button>
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   disabled={loader}
-                  className="bg-[#236F21] text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-[#1B5C1A] disabled:opacity-50 transition-colors flex items-center gap-2 justify-center shadow-sm text-sm sm:text-base order-1 sm:order-2"
+                  className="flex-1 sm:flex-none bg-[#236F21] text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-[#1B5C1A] disabled:opacity-50 transition-colors flex items-center gap-2 justify-center shadow-sm text-sm sm:text-base"
                 >
                   {loader && <Loader size={16} className="animate-spin" />}
                   {editingGuide ? 'Update Guide' : 'Create Guide'}

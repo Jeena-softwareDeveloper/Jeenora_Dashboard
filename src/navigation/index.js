@@ -1,6 +1,6 @@
 import { allNav } from './allNav';
 
-export const getNav = (role, permissions = []) => {
+export const getNav = (role, permissions = [], menuDisplaySettings = {}) => {
   const finalNavs = []
 
   for (let i = 0; i < allNav.length; i++) {
@@ -30,10 +30,21 @@ export const getNav = (role, permissions = []) => {
         });
 
         if (filteredChildren.length > 0) {
-          finalNavs.push({
-            ...item,
-            children: filteredChildren
-          });
+          // Get display mode for this specific menu group
+          // Use menu ID or title as key
+          const menuKey = item.id.toString();
+          const displayMode = menuDisplaySettings[menuKey] || 'grouped';
+
+          if (displayMode === 'flat') {
+            // Add children directly without parent (flat mode)
+            finalNavs.push(...filteredChildren);
+          } else {
+            // Add parent with children (grouped mode - default)
+            finalNavs.push({
+              ...item,
+              children: filteredChildren
+            });
+          }
         }
       } else {
         // No children (single link)

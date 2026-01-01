@@ -7,6 +7,7 @@ import { get_active_sellers, admin_create_seller, update_seller_permissions, upd
 import { allNav } from '../../navigation/allNav';
 import toast from 'react-hot-toast';
 import { IoMdClose } from "react-icons/io";
+import api from '../../api/api';
 
 const Sellers = () => {
     const dispatch = useDispatch()
@@ -26,6 +27,36 @@ const Sellers = () => {
         password: '',
         permissions: []
     });
+    const [menuDisplaySettings, setMenuDisplaySettings] = useState({});
+
+    // Get all parent menus with children (menu groups)
+    const getMenuGroups = () => {
+        const groups = [];
+        allNav.forEach(nav => {
+            if (nav.role === 'seller' && nav.children && nav.children.length > 0) {
+                groups.push({
+                    id: nav.id,
+                    title: nav.title
+                });
+            }
+        });
+        return groups;
+    };
+
+    const menuGroups = getMenuGroups();
+
+    // Fetch current menu display settings on mount
+    useEffect(() => {
+        const fetchMenuDisplaySettings = async () => {
+            try {
+                const { data } = await api.get('/admin/settings/menuDisplayMode');
+                setMenuDisplaySettings(data.setting?.settingValue || {});
+            } catch (error) {
+                console.log('Using default menu display settings');
+            }
+        };
+        fetchMenuDisplaySettings();
+    }, []);
 
     useEffect(() => {
         const obj = {
@@ -110,6 +141,20 @@ const Sellers = () => {
         });
         setShowModal(true);
     }
+
+    const handleMenuDisplayModeChange = async (menuId, mode) => {
+        try {
+            const newSettings = { ...menuDisplaySettings, [menuId]: mode };
+            console.log('Saving menu display settings:', newSettings);
+            const response = await api.post('/admin/settings/menu-display-mode', { menuGroupSettings: newSettings });
+            console.log('Save response:', response.data);
+            setMenuDisplaySettings(newSettings);
+            toast.success(`Menu display mode updated`);
+        } catch (error) {
+            console.error('Failed to save menu display mode:', error);
+            toast.error('Failed to update menu display mode');
+        }
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -273,13 +318,51 @@ const Sellers = () => {
                                 </>
                             )}
 
-                             {/* Permission Edit Form */}
+                            {/* Permission Edit Form */}
                             {isEdit && !isPasswordChange && (
                                 <div>
                                     <div className="mb-4 p-2 bg-gray-100 rounded">
                                         <p className="font-semibold">{formData.name}</p>
                                         <p className="text-sm text-gray-600">{formData.email}</p>
                                     </div>
+
+                                    {/* Menu Display Mode Toggle - Per Group */}
+                                    <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded">
+                                        <label className="block text-sm font-medium mb-3 text-blue-900">Menu Display Mode (Per Group)</label>
+                                        <div className="space-y-3 max-h-48 overflow-y-auto">
+                                            {menuGroups.map((group) => (
+                                                <div key={group.id} className="bg-white p-2 rounded border border-gray-200">
+                                                    <p className="text-sm font-semibold mb-2 text-gray-700">{group.title}</p>
+                                                    <div className="flex gap-4">
+                                                        <label className="flex items-center gap-2 cursor-pointer">
+                                                            <input
+                                                                type="radio"
+                                                                name={`menu-${group.id}`}
+                                                                value="grouped"
+                                                                checked={(menuDisplaySettings[group.id] || 'grouped') === 'grouped'}
+                                                                onChange={(e) => handleMenuDisplayModeChange(group.id.toString(), e.target.value)}
+                                                                className="w-4 h-4 text-blue-600"
+                                                            />
+                                                            <span className="text-xs">Grouped</span>
+                                                        </label>
+                                                        <label className="flex items-center gap-2 cursor-pointer">
+                                                            <input
+                                                                type="radio"
+                                                                name={`menu-${group.id}`}
+                                                                value="flat"
+                                                                checked={menuDisplaySettings[group.id] === 'flat'}
+                                                                onChange={(e) => handleMenuDisplayModeChange(group.id.toString(), e.target.value)}
+                                                                className="w-4 h-4 text-blue-600"
+                                                            />
+                                                            <span className="text-xs">Flat</span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <p className="text-xs text-gray-600 mt-2">Grouped = Show parent menu with children | Flat = Show children directly</p>
+                                    </div>
+
                                     <label className="block text-sm font-medium mb-2">Permissions</label>
                                     <div className="grid grid-cols-2 gap-2 max-h-60 overflow-y-auto border p-2 rounded">
                                         {availablePermissions.map((perm) => (

@@ -9,6 +9,7 @@ const SellerRequest = lazy(() => import('../../views/admin/SellerRequest'))
 const SellerDetails = lazy(() => import('../../views/admin/SellerDetails'))
 const ChatSeller = lazy(() => import('../../views/admin/ChatSeller'))
 const OrderDetails = lazy(() => import('../../views/admin/OrderDetails'))
+const Profile = lazy(() => import('../../views/Profile'))
 const AdminJobs = lazy(() => import('../../views/admin/AdminJobs'))
 const CreateJob = lazy(() => import('../../views/admin/CreateJob'))
 const EditJob = lazy(() => import('../../views/admin/EditJob'))
@@ -28,6 +29,11 @@ export const adminRoutes = [
     {
         path: 'admin/dashboard',
         element: <AdminDashboard />,
+        role: 'admin'
+    },
+    {
+        path: 'admin/profile',
+        element: <Profile />,
         role: 'admin'
     },
     {

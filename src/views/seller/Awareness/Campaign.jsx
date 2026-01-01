@@ -61,19 +61,19 @@ export default function Campaign() {
 
   // Socket Connection Setup
   useEffect(() => {
-    const newSocket = io("http://localhost:5000", { 
-      transports: ["websocket", "polling"], 
-      timeout: 10000 
+    const newSocket = io("http://localhost:5000", {
+      transports: ["websocket", "polling"],
+      timeout: 10000
     });
-    
+
     setSocket(newSocket);
 
     newSocket.on("connect", () => console.log("✅ Connected to server"));
     newSocket.on("disconnect", () => console.log("❌ Disconnected from server"));
-    
+
     newSocket.on("whatsapp-status", (data) => {
       console.log("📱 WhatsApp Status Update:", data);
-      
+
       // Update connection steps based on status
       if (data.connected) {
         setConnectionStep('connected');
@@ -86,7 +86,7 @@ export default function Campaign() {
       } else if (data.qrNeeded && latestQR) {
         setConnectionStep('scanning');
       }
-      
+
       setWhatsappStatus(prev => ({
         ...prev,
         ...data
@@ -130,7 +130,7 @@ export default function Campaign() {
         }
       }, 30000);
     }
-    
+
     return () => {
       if (interval) clearInterval(interval);
     };
@@ -142,7 +142,7 @@ export default function Campaign() {
     setQrError(null);
     setConnectionStep('qr_generated');
     setShowMobileMenu(false);
-    
+
     setTimeout(() => {
       handleFetchQR();
     }, 1000);
@@ -154,10 +154,10 @@ export default function Campaign() {
       setQrError(null);
       setConnectionStep('qr_generated');
       console.log("🔄 Fetching QR code...");
-      
+
       const result = await dispatch(getWhatsAppQR());
       console.log("📄 QR Code Result:", result);
-      
+
       if (result.payload?.success && result.payload.qr) {
         setLatestQR(result.payload.qr);
         setQrError(null);
@@ -361,11 +361,20 @@ export default function Campaign() {
       <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 sm:gap-6">
           {/* Title and Description */}
-          <div className="flex-1">
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">Campaign Manager</h1>
-            <p className="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">
-              Create and manage your email and WhatsApp marketing campaigns
-            </p>
+          <div className="flex-1 flex justify-between items-center">
+            <div>
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">Campaign Manager</h1>
+              <p className="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">
+                Create and manage your email and WhatsApp marketing campaigns
+              </p>
+            </div>
+            {/* Mobile Create Campaign Button (Icon Only) */}
+            <button
+              onClick={handleToggleCreateCampaign}
+              className="lg:hidden bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 transition-colors shadow-sm ml-4 flex-shrink-0"
+            >
+              <FaPlus size={20} />
+            </button>
           </div>
 
           {/* Desktop Action Buttons */}
@@ -414,7 +423,7 @@ export default function Campaign() {
             </div>
 
             {/* Add Campaign Button */}
-            <button 
+            <button
               onClick={handleToggleCreateCampaign}
               className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
             >
@@ -424,16 +433,7 @@ export default function Campaign() {
           </div>
 
           {/* Mobile Action Menu */}
-          <div className="lg:hidden flex items-center justify-between">
-            {/* Mobile Create Campaign Button */}
-            <button 
-              onClick={handleToggleCreateCampaign}
-              className="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm flex-1 mr-2"
-            >
-              <FaPlus className="w-4 h-4" />
-              Create
-            </button>
-
+          <div className="lg:hidden flex items-center justify-end">
             {/* Mobile Menu Dropdown */}
             <div className="relative">
               <button
@@ -442,7 +442,7 @@ export default function Campaign() {
               >
                 <FaEllipsisV className="w-5 h-5 text-gray-600" />
               </button>
-              
+
               {showMobileMenu && (
                 <div className="absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-[200px]">
                   {/* Show Status Toggle */}
@@ -495,8 +495,8 @@ export default function Campaign() {
                   <div className="p-3 bg-gray-50 border-b border-gray-100">
                     <div className="text-xs font-medium text-gray-700 mb-1">Quick Stats</div>
                     <div className="text-xs text-gray-600">
-                      Total: {campaignStatsData.total} • 
-                      Email: {campaignStatsData.email} • 
+                      Total: {campaignStatsData.total} •
+                      Email: {campaignStatsData.email} •
                       WhatsApp: {campaignStatsData.whatsapp}
                     </div>
                   </div>
@@ -512,9 +512,9 @@ export default function Campaign() {
             <div className="flex items-center gap-2">
               {statusNotification.icon}
               <span className={`text-sm font-medium ${statusNotification.textColor}`}>
-                {whatsappStatus.connected ? 'Connected' : 
-                 whatsappStatus.initializing ? 'Initializing...' : 
-                 whatsappStatus.qrNeeded ? 'QR Required' : 'Not Connected'}
+                {whatsappStatus.connected ? 'Connected' :
+                  whatsappStatus.initializing ? 'Initializing...' :
+                    whatsappStatus.qrNeeded ? 'QR Required' : 'Not Connected'}
               </span>
             </div>
             <div className="text-xs text-gray-500">
@@ -523,7 +523,7 @@ export default function Campaign() {
           </div>
         </div>
       </div>
-      
+
       {/* Campaign List */}
       <CampaignList />
 
@@ -547,7 +547,7 @@ export default function Campaign() {
                 </button>
               )}
             </div>
-            
+
             {/* Connection Status Steps */}
             <div className={`mb-4 sm:mb-6 p-3 sm:p-4 rounded-lg border ${connectionStepDisplay.bgColor} ${connectionStepDisplay.borderColor}`}>
               <div className="flex items-center gap-2 sm:gap-3 mb-2">
@@ -634,7 +634,7 @@ export default function Campaign() {
                   {qrLoading ? "Generating..." : "Refresh QR"}
                 </button>
               )}
-              
+
               {!whatsappStatus.connected && (
                 <button
                   onClick={() => {

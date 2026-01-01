@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { 
-  addAccount, 
-  getAccounts, 
-  updateAccount, 
-  deleteAccount, 
-  toggleAccountStatus, 
-  clearMessages 
+import {
+  addAccount,
+  getAccounts,
+  updateAccount,
+  deleteAccount,
+  toggleAccountStatus,
+  clearMessages
 } from '../../../store/Reducers/Awareness/accountReducer';
 import { Plus, Edit, Trash2, X, Search, Loader, Twitter, Facebook, Instagram, Youtube, Linkedin, Phone, Mail, MapPin, Copy, Check } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -55,9 +55,9 @@ const AccountsManager = () => {
   // Filter accounts based on search
   const filteredAccounts = useMemo(() => {
     if (!accounts) return [];
-    
+
     if (!searchTerm) return accounts;
-    
+
     return accounts.filter(account =>
       account.role?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       account.twitter?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -152,7 +152,7 @@ const AccountsManager = () => {
 
   const handleToggleActive = (account) => {
     const action = account.isActive ? 'deactivate' : 'activate';
-    
+
     showDialog({
       title: `${action.charAt(0).toUpperCase() + action.slice(1)} Account`,
       message: `Are you sure you want to ${action} this account?`,
@@ -168,12 +168,12 @@ const AccountsManager = () => {
   // Copy URL to clipboard - ONLY for social media
   const copyToClipboard = async (text, platform, accountId) => {
     if (!text) return;
-    
+
     try {
       await navigator.clipboard.writeText(text);
       setCopiedItem(`${accountId}-${platform}`);
       toast.success(`${platform} URL copied to clipboard!`);
-      
+
       setTimeout(() => {
         setCopiedItem(null);
       }, 2000);
@@ -195,11 +195,11 @@ const AccountsManager = () => {
     if (!url) {
       return (
         <div className={`w-${size} h-${size} bg-gray-200 rounded-full flex items-center justify-center`}>
-          {platform === 'twitter' && <Twitter size={size-4} className="text-gray-400" />}
-          {platform === 'facebook' && <Facebook size={size-4} className="text-gray-400" />}
-          {platform === 'instagram' && <Instagram size={size-4} className="text-gray-400" />}
-          {platform === 'youtube' && <Youtube size={size-4} className="text-gray-400" />}
-          {platform === 'linkedin' && <Linkedin size={size-4} className="text-gray-400" />}
+          {platform === 'twitter' && <Twitter size={size - 4} className="text-gray-400" />}
+          {platform === 'facebook' && <Facebook size={size - 4} className="text-gray-400" />}
+          {platform === 'instagram' && <Instagram size={size - 4} className="text-gray-400" />}
+          {platform === 'youtube' && <Youtube size={size - 4} className="text-gray-400" />}
+          {platform === 'linkedin' && <Linkedin size={size - 4} className="text-gray-400" />}
         </div>
       );
     }
@@ -207,11 +207,10 @@ const AccountsManager = () => {
     return (
       <button
         onClick={handleClick}
-        className={`p-1 rounded-full transition-colors ${
-          isCopied 
-            ? 'bg-green-100 text-green-600' 
+        className={`p-1 rounded-full transition-colors ${isCopied
+            ? 'bg-green-100 text-green-600'
             : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-        }`}
+          }`}
         title={`Copy ${platform} URL`}
       >
         {isCopied ? (
@@ -231,14 +230,23 @@ const AccountsManager = () => {
 
   return (
     <div className=" bg-green-50 p-4 sm:p-6">
-      
+
       {/* ---------------- Header ---------------- */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6 lg:mb-8">
-        <div className="w-full lg:w-auto">
-          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">Accounts Manager</h1>
-          <p className="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">Manage social media accounts and contact information</p>
+        <div className="w-full lg:w-auto flex justify-between items-center">
+          <div>
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">Accounts Manager</h1>
+            <p className="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">Manage social media accounts and contact information</p>
+          </div>
+          {/* Mobile Add Button (Icon Only) */}
+          <button
+            onClick={() => openModal()}
+            className="lg:hidden bg-[#236F21] text-white p-2 rounded-lg hover:bg-[#1B5C1A] transition-colors shadow-sm ml-4 flex-shrink-0"
+          >
+            <Plus size={24} />
+          </button>
         </div>
-        
+
         <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
           <div className="relative w-full lg:w-64">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
@@ -253,10 +261,10 @@ const AccountsManager = () => {
 
           <button
             onClick={() => openModal()}
-            className="bg-[#236F21] text-white px-4 py-2 rounded-lg hover:bg-[#1B5C1A] transition-colors flex items-center gap-2 justify-center shadow-sm w-full sm:w-auto"
+            className="hidden lg:flex bg-[#236F21] text-white px-4 py-2 rounded-lg hover:bg-[#1B5C1A] transition-colors items-center gap-2 justify-center shadow-sm"
           >
             <Plus size={20} />
-            <span className="hidden sm:inline">Add Account</span>
+            <span>Add Account</span>
           </button>
         </div>
       </div>
@@ -310,15 +318,14 @@ const AccountsManager = () => {
                       </td>
                       <td className="p-4 text-center">
                         <div className="flex justify-center">
-                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                            account.role === 'Admin' 
+                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${account.role === 'Admin'
                               ? 'bg-purple-100 text-purple-800 border border-purple-200'
                               : account.role === 'Staff'
-                              ? 'bg-blue-100 text-blue-800 border border-blue-200'
-                              : account.role === 'Customer'
-                              ? 'bg-orange-100 text-orange-800 border border-orange-200'
-                              : 'bg-gray-100 text-gray-800 border border-gray-200'
-                          }`}>
+                                ? 'bg-blue-100 text-blue-800 border border-blue-200'
+                                : account.role === 'Customer'
+                                  ? 'bg-orange-100 text-orange-800 border border-orange-200'
+                                  : 'bg-gray-100 text-gray-800 border border-gray-200'
+                            }`}>
                             {account.role}
                           </span>
                         </div>
@@ -349,11 +356,10 @@ const AccountsManager = () => {
                         <div className="flex justify-center">
                           <button
                             onClick={() => handleToggleActive(account)}
-                            className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                              account.isActive
+                            className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${account.isActive
                                 ? 'bg-green-600 text-white hover:bg-green-700'
                                 : 'bg-red-600 text-white hover:bg-red-700'
-                            }`}
+                              }`}
                           >
                             {account.isActive ? 'Active' : 'Inactive'}
                           </button>
@@ -361,15 +367,15 @@ const AccountsManager = () => {
                       </td>
                       <td className="p-4 text-center">
                         <div className="flex gap-2 justify-center">
-                          <button 
-                            onClick={() => openModal(account)} 
+                          <button
+                            onClick={() => openModal(account)}
                             className="p-2 text-[#236F21] hover:bg-green-50 rounded-lg transition-colors border border-[#236F21] hover:border-[#1B5C1A]"
                             title="Edit"
                           >
                             <Edit size={16} />
                           </button>
-                          <button 
-                            onClick={() => handleDelete(account._id)} 
+                          <button
+                            onClick={() => handleDelete(account._id)}
                             className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-red-600 hover:border-red-700"
                             title="Delete"
                           >
@@ -400,22 +406,20 @@ const AccountsManager = () => {
                         <div className="flex-1 min-w-0 text-center">
                           <h3 className="font-medium text-gray-900 text-sm line-clamp-1 mb-1">{account.name}</h3>
                           <div className="flex items-center gap-2 justify-center">
-                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                              account.role === 'Admin' 
+                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${account.role === 'Admin'
                                 ? 'bg-purple-100 text-purple-800 border border-purple-200'
                                 : account.role === 'Staff'
-                                ? 'bg-blue-100 text-blue-800 border border-blue-200'
-                                : account.role === 'Customer'
-                                ? 'bg-orange-100 text-orange-800 border border-orange-200'
-                                : 'bg-gray-100 text-gray-800 border border-gray-200'
-                            }`}>
+                                  ? 'bg-blue-100 text-blue-800 border border-blue-200'
+                                  : account.role === 'Customer'
+                                    ? 'bg-orange-100 text-orange-800 border border-orange-200'
+                                    : 'bg-gray-100 text-gray-800 border border-gray-200'
+                              }`}>
                               {account.role}
                             </span>
-                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                              account.isActive 
-                                ? 'bg-green-100 text-green-800 border border-green-200' 
+                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${account.isActive
+                                ? 'bg-green-100 text-green-800 border border-green-200'
                                 : 'bg-red-100 text-red-800 border border-red-200'
-                            }`}>
+                              }`}>
                               {account.isActive ? 'Active' : 'Inactive'}
                             </span>
                           </div>
@@ -457,15 +461,14 @@ const AccountsManager = () => {
                       <div className="flex items-center justify-between pt-3 border-t border-gray-100">
                         <button
                           onClick={() => handleToggleActive(account)}
-                          className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-                            account.isActive
+                          className={`px-3 py-1 rounded text-xs font-medium transition-colors ${account.isActive
                               ? 'bg-orange-100 text-orange-700 hover:bg-orange-200'
                               : 'bg-green-100 text-green-700 hover:bg-green-200'
-                          }`}
+                            }`}
                         >
                           {account.isActive ? 'Deactivate' : 'Activate'}
                         </button>
-                        
+
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => openModal(account)}
@@ -501,8 +504,8 @@ const AccountsManager = () => {
               {searchTerm ? 'No accounts found' : 'No accounts yet'}
             </h3>
             <p className="text-gray-600 mb-6 text-sm sm:text-base">
-              {searchTerm 
-                ? 'Try adjusting your search criteria' 
+              {searchTerm
+                ? 'Try adjusting your search criteria'
                 : 'Get started by creating your first account'
               }
             </p>
@@ -521,12 +524,12 @@ const AccountsManager = () => {
       {/* ---------------- Modal ---------------- */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden mx-2 sm:mx-4">
-            <div className="flex justify-between items-center p-4 sm:p-6 border-b">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden mx-2 sm:mx-4 flex flex-col">
+            <div className="flex justify-between items-center p-4 sm:p-6 border-b flex-shrink-0">
               <h2 className="text-lg sm:text-xl font-semibold">
                 {editingId ? 'Edit Account' : 'Create New Account'}
               </h2>
-              <button 
+              <button
                 onClick={closeModal}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
               >
@@ -534,18 +537,18 @@ const AccountsManager = () => {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4">
+            <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 overflow-y-auto flex-1 no-scrollbar">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     User Name
                   </label>
-                  <input 
-                    type="text" 
-                    name="name" 
+                  <input
+                    type="text"
+                    name="name"
                     placeholder="Jeenora"
-                    value={form.name} 
-                    onChange={handleChange} 
+                    value={form.name}
+                    onChange={handleChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#236F21] focus:border-[#236F21] text-sm sm:text-base"
                   />
                 </div>
@@ -554,12 +557,12 @@ const AccountsManager = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Area
                   </label>
-                  <input 
-                    type="text" 
-                    name="area" 
-                    placeholder="Chennai" 
-                    value={form.area} 
-                    onChange={handleChange} 
+                  <input
+                    type="text"
+                    name="area"
+                    placeholder="Chennai"
+                    value={form.area}
+                    onChange={handleChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#236F21] focus:border-[#236F21] text-sm sm:text-base"
                   />
                 </div>
@@ -569,12 +572,12 @@ const AccountsManager = () => {
                     <Twitter size={16} className="inline mr-2" />
                     Twitter URL
                   </label>
-                  <input 
-                    type="text" 
-                    name="twitter" 
-                    placeholder="https://twitter.com/username" 
-                    value={form.twitter} 
-                    onChange={handleChange} 
+                  <input
+                    type="text"
+                    name="twitter"
+                    placeholder="https://twitter.com/username"
+                    value={form.twitter}
+                    onChange={handleChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#236F21] focus:border-[#236F21] text-sm sm:text-base"
                   />
                 </div>
@@ -584,12 +587,12 @@ const AccountsManager = () => {
                     <Facebook size={16} className="inline mr-2" />
                     Facebook URL
                   </label>
-                  <input 
-                    type="text" 
-                    name="facebook" 
-                    placeholder="https://facebook.com/username" 
-                    value={form.facebook} 
-                    onChange={handleChange} 
+                  <input
+                    type="text"
+                    name="facebook"
+                    placeholder="https://facebook.com/username"
+                    value={form.facebook}
+                    onChange={handleChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#236F21] focus:border-[#236F21] text-sm sm:text-base"
                   />
                 </div>
@@ -599,12 +602,12 @@ const AccountsManager = () => {
                     <Instagram size={16} className="inline mr-2" />
                     Instagram URL
                   </label>
-                  <input 
-                    type="text" 
-                    name="instagram" 
-                    placeholder="https://instagram.com/username" 
-                    value={form.instagram} 
-                    onChange={handleChange} 
+                  <input
+                    type="text"
+                    name="instagram"
+                    placeholder="https://instagram.com/username"
+                    value={form.instagram}
+                    onChange={handleChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#236F21] focus:border-[#236F21] text-sm sm:text-base"
                   />
                 </div>
@@ -614,12 +617,12 @@ const AccountsManager = () => {
                     <Linkedin size={16} className="inline mr-2" />
                     LinkedIn URL
                   </label>
-                  <input 
-                    type="text" 
-                    name="linkedin" 
-                    placeholder="https://linkedin.com/in/username" 
-                    value={form.linkedin} 
-                    onChange={handleChange} 
+                  <input
+                    type="text"
+                    name="linkedin"
+                    placeholder="https://linkedin.com/in/username"
+                    value={form.linkedin}
+                    onChange={handleChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#236F21] focus:border-[#236F21] text-sm sm:text-base"
                   />
                 </div>
@@ -629,12 +632,12 @@ const AccountsManager = () => {
                     <Youtube size={16} className="inline mr-2" />
                     YouTube URL
                   </label>
-                  <input 
-                    type="text" 
-                    name="youtube" 
-                    placeholder="https://youtube.com/username" 
-                    value={form.youtube} 
-                    onChange={handleChange} 
+                  <input
+                    type="text"
+                    name="youtube"
+                    placeholder="https://youtube.com/username"
+                    value={form.youtube}
+                    onChange={handleChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#236F21] focus:border-[#236F21] text-sm sm:text-base"
                   />
                 </div>
@@ -643,12 +646,12 @@ const AccountsManager = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Phone Number
                   </label>
-                  <input 
-                    type="text" 
-                    name="phoneNumber" 
-                    placeholder="+1234567890" 
-                    value={form.phoneNumber} 
-                    onChange={handleChange} 
+                  <input
+                    type="text"
+                    name="phoneNumber"
+                    placeholder="+1234567890"
+                    value={form.phoneNumber}
+                    onChange={handleChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#236F21] focus:border-[#236F21] text-sm sm:text-base"
                   />
                 </div>
@@ -657,12 +660,12 @@ const AccountsManager = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Email Address
                   </label>
-                  <input 
-                    type="email" 
-                    name="email" 
-                    placeholder="email@example.com" 
-                    value={form.email} 
-                    onChange={handleChange} 
+                  <input
+                    type="email"
+                    name="email"
+                    placeholder="email@example.com"
+                    value={form.email}
+                    onChange={handleChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#236F21] focus:border-[#236F21] text-sm sm:text-base"
                   />
                 </div>
@@ -671,10 +674,10 @@ const AccountsManager = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Role
                   </label>
-                  <select 
-                    name="role" 
-                    value={form.role} 
-                    onChange={handleChange} 
+                  <select
+                    name="role"
+                    value={form.role}
+                    onChange={handleChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#236F21] focus:border-[#236F21] text-sm sm:text-base"
                   >
                     <option value="Admin">Admin</option>
@@ -686,28 +689,28 @@ const AccountsManager = () => {
               </div>
 
               <div className="flex items-center space-x-2 pt-4">
-                <input 
-                  type="checkbox" 
-                  name="isActive" 
-                  checked={form.isActive} 
+                <input
+                  type="checkbox"
+                  name="isActive"
+                  checked={form.isActive}
                   onChange={handleChange}
                   className="w-4 h-4 text-[#236F21] border-gray-300 rounded focus:ring-[#236F21]"
                 />
                 <label className="text-sm font-medium text-gray-700">Active Account</label>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-3 justify-end pt-6 border-t border-gray-200 mt-6">
-                <button 
+              <div className="flex gap-3 justify-end pt-6 border-t border-gray-200 mt-6">
+                <button
                   type="button"
                   onClick={closeModal}
-                  className="px-4 sm:px-6 py-2 text-gray-600 hover:text-gray-800 transition-colors border border-gray-300 rounded-lg hover:border-gray-400 text-sm sm:text-base order-2 sm:order-1"
+                  className="flex-1 sm:flex-none px-4 sm:px-6 py-2 text-gray-600 hover:text-gray-800 transition-colors border border-gray-300 rounded-lg hover:border-gray-400 text-sm sm:text-base"
                 >
                   Cancel
                 </button>
-                <button 
+                <button
                   type="submit"
                   disabled={loader}
-                  className="bg-[#236F21] text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-[#1B5C1A] disabled:opacity-50 transition-colors flex items-center gap-2 justify-center shadow-sm text-sm sm:text-base order-1 sm:order-2"
+                  className="flex-1 sm:flex-none bg-[#236F21] text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-[#1B5C1A] disabled:opacity-50 transition-colors flex items-center gap-2 justify-center shadow-sm text-sm sm:text-base"
                 >
                   {loader && <Loader size={16} className="animate-spin" />}
                   {editingId ? 'Update Account' : 'Create Account'}

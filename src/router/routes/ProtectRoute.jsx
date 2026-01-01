@@ -18,6 +18,22 @@ const ProtectRoute = ({ route, children }) => {
             // Check status requirements
             if (route.status) {
                 if (route.status === userInfo.status) {
+                    // Status matches, now check permissions
+                    if (route.permission) {
+                        const userPermissions = userInfo?.permissions || [];
+
+                        if (!userPermissions.includes(route.permission)) {
+                            // User doesn't have required permission, redirect based on role
+                            if (userInfo.role === 'seller') {
+                                return <Navigate to='/seller/awareness/banners' replace />;
+                            } else if (userInfo.role === 'hireUser') {
+                                return <Navigate to='/hire/dashboard' replace />;
+                            } else {
+                                return <Navigate to='/' replace />;
+                            }
+                        }
+                    }
+                    // Permission check passed or no permission required, allow access
                     return <Suspense fallback={null}>{children}</Suspense>;
                 } else {
                     // Handle different status redirects based on user role
@@ -43,6 +59,22 @@ const ProtectRoute = ({ route, children }) => {
                 // Check visibility requirements
                 if (route.visibility) {
                     if (route.visibility.some(r => r === userInfo.status)) {
+                        // Visibility check passed, now check permissions
+                        if (route.permission) {
+                            const userPermissions = userInfo?.permissions || [];
+
+                            if (!userPermissions.includes(route.permission)) {
+                                // User doesn't have required permission, redirect based on role
+                                if (userInfo.role === 'seller') {
+                                    return <Navigate to='/seller/awareness/banners' replace />;
+                                } else if (userInfo.role === 'hireUser') {
+                                    return <Navigate to='/hire/dashboard' replace />;
+                                } else {
+                                    return <Navigate to='/' replace />;
+                                }
+                            }
+                        }
+                        // Permission check passed or no permission required, allow access
                         return <Suspense fallback={null}>{children}</Suspense>;
                     } else {
                         // Redirect based on role and status
@@ -55,7 +87,22 @@ const ProtectRoute = ({ route, children }) => {
                         }
                     }
                 } else {
-                    // No status or visibility requirements, allow access
+                    // No status or visibility requirements, check permissions
+                    if (route.permission) {
+                        const userPermissions = userInfo?.permissions || [];
+
+                        if (!userPermissions.includes(route.permission)) {
+                            // User doesn't have required permission, redirect based on role
+                            if (userInfo.role === 'seller') {
+                                return <Navigate to='/seller/awareness/banners' replace />;
+                            } else if (userInfo.role === 'hireUser') {
+                                return <Navigate to='/hire/dashboard' replace />;
+                            } else {
+                                return <Navigate to='/' replace />;
+                            }
+                        }
+                    }
+                    // Permission check passed or no permission required, allow access
                     return <Suspense fallback={null}>{children}</Suspense>;
                 }
             }

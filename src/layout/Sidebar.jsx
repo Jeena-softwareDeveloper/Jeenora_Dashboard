@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { getNav } from '../navigation';
-import { BiLogOutCircle, BiChevronRight, BiSearch } from 'react-icons/bi';
+import { BiChevronRight } from 'react-icons/bi';
 import { IoIosArrowDown, IoIosSettings } from 'react-icons/io';
 import { useDispatch, useSelector } from 'react-redux';
-import { logout } from '../store/Reducers/authReducer';
 import logo from '../assets/logo.png';
 
 const Sidebar = ({ showSidebar, setShowSidebar, collapsed, setCollapsed, isMobile }) => {
@@ -14,8 +13,8 @@ const Sidebar = ({ showSidebar, setShowSidebar, collapsed, setCollapsed, isMobil
     const { pathname } = useLocation();
     const [allNav, setAllNav] = useState([]);
     const [openDropdown, setOpenDropdown] = useState(null);
-    const [searchTerm, setSearchTerm] = useState('');
     const [activeHover, setActiveHover] = useState(null);
+    const [menuDisplaySettings, setMenuDisplaySettings] = useState({});
     const sidebarRef = useRef(null);
 
     // Handle resize inside Sidebar if needed
@@ -49,22 +48,38 @@ const Sidebar = ({ showSidebar, setShowSidebar, collapsed, setCollapsed, isMobil
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [showSidebar, isMobile, setShowSidebar]);
 
+    // Fetch per-group menu display mode settings
+    useEffect(() => {
+        const fetchMenuDisplaySettings = async () => {
+            try {
+                // Import api at the top if not already imported
+                const response = await fetch('http://localhost:5000/api/admin/settings/menuDisplayMode', {
+                    credentials: 'include',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                    }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('Fetched menu display settings:', data.setting?.settingValue);
+                    setMenuDisplaySettings(data.setting?.settingValue || {});
+                } else {
+                    console.log('Failed to fetch settings, status:', response.status);
+                }
+            } catch (error) {
+                console.error('Error fetching menu display settings:', error);
+                console.log('Using default menu display settings');
+            }
+        };
+        fetchMenuDisplaySettings();
+    }, []);
+
     // Load navigation
     useEffect(() => {
-        setAllNav(getNav(role, userInfo?.permissions));
-    }, [role, userInfo]);
+        setAllNav(getNav(role, userInfo?.permissions, menuDisplaySettings));
+    }, [role, userInfo, menuDisplaySettings]);
 
-    const filteredNav = allNav.filter(nav =>
-        nav.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (nav.children && nav.children.some(child =>
-            child.title.toLowerCase().includes(searchTerm.toLowerCase())
-        ))
-    );
 
-    const handleLogout = async () => {
-        await dispatch(logout({ navigate, role }));
-        setShowSidebar(false);
-    };
 
     const toggleDropdown = useCallback((id) => {
         setOpenDropdown(openDropdown === id ? null : id);
@@ -141,22 +156,26 @@ const Sidebar = ({ showSidebar, setShowSidebar, collapsed, setCollapsed, isMobil
             {/* Sidebar */}
             <div
                 ref={sidebarRef}
-                className={`fixed h-screen flex flex-col z-50 bg-gradient-to-b from-green-50 to-white shadow-2xl border-r border-green-200/30 transition-all duration-300 ease-in-out ${sidebarWidth} ${showSidebar ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}
+                className={`
+                    ${isMobile ? 'fixed' : 'relative'} 
+                    h-full flex flex-col z-50 
+                    bg-gradient-to-b from-green-50 to-white 
+                    shadow-2xl border-r border-green-200/30 
+                    transition-all duration-300 ease-in-out 
+                    ${sidebarWidth} 
+                    ${isMobile && !showSidebar ? '-translate-x-full' : 'translate-x-0'}
+                `}
             >
-                {/* Header with Collapse Button Only */}
-                <div className="flex-shrink-0 h-16 lg:h-20 flex items-center justify-end px-3 lg:px-4 bg-gradient-to-r ">
-                    {/* Search & Navigation */}
-                    {!collapsed && (
-                        <div className="p-3 lg:p-4 border-b border-green-200/30">
-                            <div className="relative">
-                                <BiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-green-400" />
-                                <input
-                                    type="text"
-                                    placeholder="Search menu..."
-                                    value={searchTerm}
-                                    onChange={e => setSearchTerm(e.target.value)}
-                                    className="w-full pl-10 pr-8 py-2 bg-white border border-green-200 rounded-lg text-sm lg:text-base"
-                                />
+                {/* Logo and Brand */}
+                <div className={`flex-shrink-0 h-16 lg:h-20 flex items-center ${collapsed ? 'justify-center' : 'justify-start px-4'} bg-gradient-to-r border-b border-green-200/30`}>
+                    {collapsed ? (
+                        <img src={logo} alt="Jeenora" className="h-10 w-10 object-contain" />
+                    ) : (
+                        <div className="flex items-center gap-3">
+                            <img src={logo} alt="Jeenora" className="h-12 w-12 object-contain" />
+                            <div>
+                                <h1 className="text-xl font-bold text-green-700">Jeenora</h1>
+                                <p className="text-xs text-green-600">Dashboard</p>
                             </div>
                         </div>
                     )}
@@ -172,17 +191,11 @@ const Sidebar = ({ showSidebar, setShowSidebar, collapsed, setCollapsed, isMobil
                         </button>
                     )}
                 </div>
-                <div className=" overflow-y-auto p-3 lg:p-4 space-y-1">
-                    {filteredNav.length > 0 ? filteredNav.map(nav => <NavItem key={nav.id} nav={nav} />)
-                        : <p className="text-center text-green-400 py-6">No menu items</p>}
-                </div>
 
-                {/* Footer */}
-                <div className="flex-shrink-0  border-t border-green-200/30 p-3 lg:p-4">
-                    <button onClick={handleLogout} className={`flex items-center gap-3 w-full ${collapsed ? 'justify-center' : ''}`}>
-                        <BiLogOutCircle />
-                        {!collapsed && <span>Logout</span>}
-                    </button>
+                {/* Navigation Menu */}
+                <div className=" overflow-y-auto p-3 lg:p-4 space-y-1">
+                    {allNav.length > 0 ? allNav.map(nav => <NavItem key={nav.id} nav={nav} />)
+                        : <p className="text-center text-green-400 py-6">No menu items</p>}
                 </div>
             </div>
         </>

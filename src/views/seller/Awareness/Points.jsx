@@ -7,7 +7,7 @@ import toast from 'react-hot-toast'
 const Points = () => {
   const dispatch = useDispatch()
   const { points, loader, success, error } = useSelector((state) => state.awarenessPoints)
-  
+
   const [formData, setFormData] = useState({
     members: 0,
     guides: 0,
@@ -76,25 +76,42 @@ const Points = () => {
     <div className=" bg-green-50 p-4 sm:p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
+        {/* Header */}
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6 lg:mb-8">
-          <div className="w-full lg:w-auto">
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">Awareness Points Dashboard</h1>
-            <p className="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">Manage and track your community engagement metrics</p>
+          {/* Title and Mobile Edit Button */}
+          <div className="w-full lg:w-auto flex justify-between items-center">
+            <div>
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">Awareness Points Dashboard</h1>
+              <p className="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">Manage and track your community engagement metrics</p>
+            </div>
+
+            {!isEditing && (
+              <button
+                onClick={() => setIsEditing(true)}
+                className="lg:hidden bg-[#236F21] text-white p-2 rounded-lg hover:bg-[#1B5C1A] transition-colors shadow-sm ml-4 flex-shrink-0"
+              >
+                <Edit size={24} />
+              </button>
+            )}
           </div>
-          
-          {!isEditing ? (
+
+          {/* Desktop Edit Button */}
+          {!isEditing && (
             <button
               onClick={() => setIsEditing(true)}
-              className="bg-[#236F21] text-white px-4 py-2 rounded-lg hover:bg-[#1B5C1A] transition-colors flex items-center gap-2 justify-center shadow-sm w-full lg:w-auto"
+              className="hidden lg:flex bg-[#236F21] text-white px-4 py-2 rounded-lg hover:bg-[#1B5C1A] transition-colors items-center gap-2 justify-center shadow-sm"
             >
               <Edit size={20} />
               <span className="text-sm sm:text-base">Edit Points</span>
             </button>
-          ) : (
-            <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+          )}
+
+          {/* Edit Mode Actions (Save/Cancel) */}
+          {isEditing && (
+            <div className="flex gap-3 w-full lg:w-auto">
               <button
                 onClick={handleCancel}
-                className="px-4 sm:px-6 py-2 text-gray-600 hover:text-gray-800 transition-colors border border-gray-300 rounded-lg hover:border-gray-400 flex items-center gap-2 justify-center w-full sm:w-auto"
+                className="flex-1 lg:flex-none px-4 sm:px-6 py-2 text-gray-600 hover:text-gray-800 transition-colors border border-gray-300 rounded-lg hover:border-gray-400 flex items-center gap-2 justify-center"
               >
                 <X size={20} />
                 <span className="text-sm sm:text-base">Cancel</span>
@@ -102,7 +119,7 @@ const Points = () => {
               <button
                 onClick={handleSubmit}
                 disabled={loader}
-                className="bg-[#236F21] text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-[#1B5C1A] disabled:opacity-50 transition-colors flex items-center gap-2 justify-center shadow-sm w-full sm:w-auto"
+                className="flex-1 lg:flex-none bg-[#236F21] text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-[#1B5C1A] disabled:opacity-50 transition-colors flex items-center gap-2 justify-center shadow-sm"
               >
                 {loader ? (
                   <>
@@ -139,8 +156,8 @@ const Points = () => {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {pointFields.map((field) => (
-                  <div 
-                    key={field.key} 
+                  <div
+                    key={field.key}
                     className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 p-4"
                   >
                     {/* Icon and Input/Value Row */}
@@ -159,19 +176,19 @@ const Points = () => {
                         </div>
                       )}
                     </div>
-                    
+
                     {/* Label */}
                     <h3 className="text-sm font-medium text-gray-700 mb-2">
                       {field.label}
                     </h3>
-                    
+
                     {/* Value Display */}
                     {!isEditing && (
                       <p className="text-2xl font-bold text-[#236F21]">
                         {points?.[field.key]?.toLocaleString() || 0}
                       </p>
                     )}
-                    
+
                     {/* Status Info */}
                     {!isEditing && (
                       <div className="mt-3 pt-3 border-t border-gray-100">
@@ -184,19 +201,6 @@ const Points = () => {
                 ))}
               </div>
             )}
-          </div>
-        </div>
-
-        {/* Info Section */}
-        <div className="mt-6 bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-          <div className="text-center">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              About Community Metrics
-            </h3>
-            <p className="text-gray-600 text-sm sm:text-base max-w-3xl mx-auto">
-              These metrics represent the impact and reach of our community initiatives. 
-              Keep them updated to showcase the growth and success of our programs.
-            </p>
           </div>
         </div>
       </div>

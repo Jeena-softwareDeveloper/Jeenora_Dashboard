@@ -116,8 +116,8 @@ export default function CreateCampaign({ onClose, editData = null, onSaveComplet
       }
 
       // Determine daily mode from existing data
-      const dailyMode = editData.recurrenceConfig?.dailyMode || 
-                       (editData.recurrenceConfig?.perDayCount > 1 ? 'multiple' : 'single');
+      const dailyMode = editData.recurrenceConfig?.dailyMode ||
+        (editData.recurrenceConfig?.perDayCount > 1 ? 'multiple' : 'single');
 
       const formattedData = {
         ...editData,
@@ -336,14 +336,14 @@ export default function CreateCampaign({ onClose, editData = null, onSaveComplet
       if (!campaignData.recurrenceConfig?.startDate) {
         newErrors.startDate = 'Start date is required for recurring campaigns';
       }
-      
+
       // Validate perDayCount for multiple mode
       if (campaignData.recurrenceConfig?.dailyMode === 'multiple') {
         const perDayCount = parseInt(campaignData.recurrenceConfig.perDayCount) || 1;
         if (perDayCount < 1 || perDayCount > 100) {
           newErrors.perDayCount = 'Messages per day must be between 1 and 100';
         }
-        
+
         // Validate interval for multiple messages
         if (perDayCount > 1) {
           const intervalMinutes = parseInt(campaignData.recurrenceConfig.intervalMinutes) || 0;
@@ -398,7 +398,7 @@ export default function CreateCampaign({ onClose, editData = null, onSaveComplet
         try {
           const localDateTime = `${preparedData.scheduledDate}T${preparedData.scheduledTime}`;
           const scheduledDateTime = new Date(localDateTime);
-          
+
           if (!isNaN(scheduledDateTime.getTime())) {
             preparedData.scheduledDate = scheduledDateTime.toISOString();
           } else {
@@ -419,7 +419,7 @@ export default function CreateCampaign({ onClose, editData = null, onSaveComplet
 
       // Ensure recurrenceConfig exists and has proper values
       const recurrenceConfig = preparedData.recurrenceConfig || {};
-      
+
       // Calculate dailyMode based on perDayCount if not explicitly set
       const perDayCountValue = parseInt(recurrenceConfig.perDayCount || 1, 10);
       const dailyMode = recurrenceConfig.dailyMode || (perDayCountValue > 1 ? 'multiple' : 'single');
@@ -531,11 +531,11 @@ export default function CreateCampaign({ onClose, editData = null, onSaveComplet
   };
 
   return (
-    <div 
+    <div
       className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4 z-50"
       onClick={handleBackdropClick}
     >
-      <div 
+      <div
         className="bg-white rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-2xl lg:max-w-6xl max-h-[95vh] overflow-hidden mx-2 sm:mx-0"
         onClick={(e) => e.stopPropagation()}
       >
@@ -589,7 +589,7 @@ export default function CreateCampaign({ onClose, editData = null, onSaveComplet
             </div>
             <FaChevronRight className={`w-4 h-4 text-gray-500 transition-transform ${showMobileTabs ? 'rotate-90' : ''}`} />
           </button>
-          
+
           {showMobileTabs && (
             <div className="border-t border-gray-200 bg-white">
               {tabs.map(tab => (
@@ -600,11 +600,10 @@ export default function CreateCampaign({ onClose, editData = null, onSaveComplet
                     setActiveTab(tab.id);
                     setShowMobileTabs(false);
                   }}
-                  className={`flex items-center gap-2 px-4 py-3 w-full text-left border-b border-gray-100 last:border-b-0 ${
-                    activeTab === tab.id
+                  className={`flex items-center gap-2 px-4 py-3 w-full text-left border-b border-gray-100 last:border-b-0 ${activeTab === tab.id
                       ? 'text-blue-600 bg-blue-50'
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                  }`}
+                    }`}
                 >
                   {tab.icon}
                   {tab.label}
@@ -622,11 +621,10 @@ export default function CreateCampaign({ onClose, editData = null, onSaveComplet
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-6 py-4 font-medium transition-all whitespace-nowrap ${
-                  activeTab === tab.id
+                className={`flex items-center gap-2 px-6 py-4 font-medium transition-all whitespace-nowrap ${activeTab === tab.id
                     ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                }`}
+                  }`}
               >
                 {tab.icon}
                 {tab.label}
@@ -649,18 +647,17 @@ export default function CreateCampaign({ onClose, editData = null, onSaveComplet
               <FaChevronLeft className="w-4 h-4" />
               Previous
             </button>
-            
+
             <div className="flex items-center gap-1">
               {tabs.map((tab, index) => (
                 <div
                   key={tab.id}
-                  className={`w-2 h-2 rounded-full ${
-                    activeTab === tab.id ? 'bg-blue-600' : 'bg-gray-300'
-                  }`}
+                  className={`w-2 h-2 rounded-full ${activeTab === tab.id ? 'bg-blue-600' : 'bg-gray-300'
+                    }`}
                 />
               ))}
             </div>
-            
+
             <button
               type="button"
               onClick={nextTab}
@@ -688,9 +685,8 @@ export default function CreateCampaign({ onClose, editData = null, onSaveComplet
                       value={campaignData.title}
                       onChange={handleInputChange}
                       placeholder="Enter campaign title"
-                      className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm sm:text-base ${
-                        errors.title ? 'border-red-500' : 'border-gray-300'
-                      }`}
+                      className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm sm:text-base ${errors.title ? 'border-red-500' : 'border-gray-300'
+                        }`}
                     />
                     {errors.title && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.title}</p>}
                   </div>
@@ -704,11 +700,10 @@ export default function CreateCampaign({ onClose, editData = null, onSaveComplet
                       <button
                         type="button"
                         onClick={() => setCampaignData(prev => ({ ...prev, mode: 'email' }))}
-                        className={`p-3 sm:p-4 border-2 rounded-lg text-center transition-all flex items-center justify-center gap-2 text-sm sm:text-base ${
-                          campaignData.mode === 'email'
+                        className={`p-3 sm:p-4 border-2 rounded-lg text-center transition-all flex items-center justify-center gap-2 text-sm sm:text-base ${campaignData.mode === 'email'
                             ? 'border-blue-500 bg-blue-50 text-blue-700'
                             : 'border-gray-300 hover:border-gray-400'
-                        }`}
+                          }`}
                       >
                         <FaEnvelope className="w-4 h-4 sm:w-5 sm:h-5" />
                         <span>Email</span>
@@ -716,11 +711,10 @@ export default function CreateCampaign({ onClose, editData = null, onSaveComplet
                       <button
                         type="button"
                         onClick={() => setCampaignData(prev => ({ ...prev, mode: 'whatsapp' }))}
-                        className={`p-3 sm:p-4 border-2 rounded-lg text-center transition-all flex items-center justify-center gap-2 text-sm sm:text-base ${
-                          campaignData.mode === 'whatsapp'
+                        className={`p-3 sm:p-4 border-2 rounded-lg text-center transition-all flex items-center justify-center gap-2 text-sm sm:text-base ${campaignData.mode === 'whatsapp'
                             ? 'border-green-500 bg-green-50 text-green-700'
                             : 'border-gray-300 hover:border-gray-400'
-                        }`}
+                          }`}
                       >
                         <FaWhatsapp className="w-4 h-4 sm:w-5 sm:h-5" />
                         <span>WhatsApp</span>
@@ -740,9 +734,8 @@ export default function CreateCampaign({ onClose, editData = null, onSaveComplet
                         value={campaignData.subject}
                         onChange={handleInputChange}
                         placeholder="Enter email subject"
-                        className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm sm:text-base ${
-                          errors.subject ? 'border-red-500' : 'border-gray-300'
-                        }`}
+                        className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm sm:text-base ${errors.subject ? 'border-red-500' : 'border-gray-300'
+                          }`}
                       />
                       {errors.subject && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.subject}</p>}
                     </div>
@@ -779,9 +772,8 @@ export default function CreateCampaign({ onClose, editData = null, onSaveComplet
                     onChange={handleInputChange}
                     placeholder="Enter your campaign message here..."
                     rows={10}
-                    className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none text-sm sm:text-base ${
-                      errors.message ? 'border-red-500' : 'border-gray-300'
-                    }`}
+                    className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all resize-none text-sm sm:text-base ${errors.message ? 'border-red-500' : 'border-gray-300'
+                      }`}
                   />
                   {errors.message && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.message}</p>}
                   <div className="flex justify-between text-xs sm:text-sm text-gray-500 mt-2">
@@ -805,11 +797,10 @@ export default function CreateCampaign({ onClose, editData = null, onSaveComplet
                   <button
                     type="button"
                     onClick={() => setContactSource('category')}
-                    className={`p-3 sm:p-4 border-2 rounded-lg text-center transition-all text-sm sm:text-base ${
-                      contactSource === 'category'
+                    className={`p-3 sm:p-4 border-2 rounded-lg text-center transition-all text-sm sm:text-base ${contactSource === 'category'
                         ? 'border-blue-500 bg-blue-50 text-blue-700'
                         : 'border-gray-300 hover:border-gray-400'
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center justify-center gap-2">
                       <FaUsers className="w-4 h-4" />
@@ -819,11 +810,10 @@ export default function CreateCampaign({ onClose, editData = null, onSaveComplet
                   <button
                     type="button"
                     onClick={() => setContactSource('manual')}
-                    className={`p-3 sm:p-4 border-2 rounded-lg text-center transition-all text-sm sm:text-base ${
-                      contactSource === 'manual'
+                    className={`p-3 sm:p-4 border-2 rounded-lg text-center transition-all text-sm sm:text-base ${contactSource === 'manual'
                         ? 'border-blue-500 bg-blue-50 text-blue-700'
                         : 'border-gray-300 hover:border-gray-400'
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center justify-center gap-2">
                       <FaEnvelope className="w-4 h-4" />
@@ -844,9 +834,8 @@ export default function CreateCampaign({ onClose, editData = null, onSaveComplet
                       multiple
                       value={campaignData.categoryIds}
                       onChange={handleCategoryChange}
-                      className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm sm:text-base ${
-                        errors.categoryIds ? 'border-red-500' : 'border-gray-300'
-                      }`}
+                      className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm sm:text-base ${errors.categoryIds ? 'border-red-500' : 'border-gray-300'
+                        }`}
                       size={4}
                     >
                       {categories.map(category => (
@@ -982,11 +971,10 @@ export default function CreateCampaign({ onClose, editData = null, onSaveComplet
                             setCampaignData(prev => ({ ...prev, scheduleType: option.value }));
                             setShowScheduleWarning(true);
                           }}
-                          className={`p-3 sm:p-4 border-2 rounded-lg text-left transition-all flex items-center gap-2 sm:gap-3 text-sm sm:text-base ${
-                            campaignData.scheduleType === option.value
+                          className={`p-3 sm:p-4 border-2 rounded-lg text-left transition-all flex items-center gap-2 sm:gap-3 text-sm sm:text-base ${campaignData.scheduleType === option.value
                               ? 'border-blue-500 bg-blue-50 text-blue-700'
                               : 'border-gray-300 hover:border-gray-400'
-                          }`}
+                            }`}
                         >
                           {option.icon}
                           <div>
@@ -1015,9 +1003,8 @@ export default function CreateCampaign({ onClose, editData = null, onSaveComplet
                           value={campaignData.scheduledDate}
                           onChange={handleInputChange}
                           min={new Date().toISOString().split('T')[0]}
-                          className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm sm:text-base ${
-                            errors.scheduledDate ? 'border-red-500' : 'border-gray-300'
-                          }`}
+                          className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm sm:text-base ${errors.scheduledDate ? 'border-red-500' : 'border-gray-300'
+                            }`}
                         />
                         {errors.scheduledDate && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.scheduledDate}</p>}
                       </div>
@@ -1049,9 +1036,8 @@ export default function CreateCampaign({ onClose, editData = null, onSaveComplet
                           value={campaignData.recurrenceConfig?.startDate || ''}
                           onChange={(e) => handleRecurringConfigChange('startDate', e.target.value)}
                           min={new Date().toISOString().split('T')[0]}
-                          className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm sm:text-base ${
-                            errors.startDate ? 'border-red-500' : 'border-gray-300'
-                          }`}
+                          className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm sm:text-base ${errors.startDate ? 'border-red-500' : 'border-gray-300'
+                            }`}
                         />
                         {errors.startDate && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.startDate}</p>}
                       </div>
@@ -1098,11 +1084,10 @@ export default function CreateCampaign({ onClose, editData = null, onSaveComplet
                               handleRecurringConfigChange('dailyMode', 'single');
                               handleRecurringConfigChange('perDayCount', 1);
                             }}
-                            className={`p-3 border-2 rounded-lg text-center transition-all flex items-center justify-center gap-2 text-sm ${
-                              campaignData.recurrenceConfig?.dailyMode === 'single'
+                            className={`p-3 border-2 rounded-lg text-center transition-all flex items-center justify-center gap-2 text-sm ${campaignData.recurrenceConfig?.dailyMode === 'single'
                                 ? 'border-blue-500 bg-blue-50 text-blue-700'
                                 : 'border-gray-300 hover:border-gray-400'
-                            }`}
+                              }`}
                           >
                             <FaPaperPlane className="w-4 h-4" />
                             <span>Send Once</span>
@@ -1110,11 +1095,10 @@ export default function CreateCampaign({ onClose, editData = null, onSaveComplet
                           <button
                             type="button"
                             onClick={() => handleRecurringConfigChange('dailyMode', 'multiple')}
-                            className={`p-3 border-2 rounded-lg text-center transition-all flex items-center justify-center gap-2 text-sm ${
-                              campaignData.recurrenceConfig?.dailyMode === 'multiple'
+                            className={`p-3 border-2 rounded-lg text-center transition-all flex items-center justify-center gap-2 text-sm ${campaignData.recurrenceConfig?.dailyMode === 'multiple'
                                 ? 'border-green-500 bg-green-50 text-green-700'
                                 : 'border-gray-300 hover:border-gray-400'
-                            }`}
+                              }`}
                           >
                             <FaRedo className="w-4 h-4" />
                             <span>Send Multiple</span>
@@ -1134,9 +1118,8 @@ export default function CreateCampaign({ onClose, editData = null, onSaveComplet
                             onChange={(e) => handleRecurringConfigChange('perDayCount', parseInt(e.target.value) || 1)}
                             min="1"
                             max="100"
-                            className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm sm:text-base ${
-                              errors.perDayCount ? 'border-red-500' : 'border-gray-300'
-                            }`}
+                            className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm sm:text-base ${errors.perDayCount ? 'border-red-500' : 'border-gray-300'
+                              }`}
                           />
                           {errors.perDayCount && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.perDayCount}</p>}
                           <p className="text-xs text-gray-500 mt-1">
@@ -1146,28 +1129,27 @@ export default function CreateCampaign({ onClose, editData = null, onSaveComplet
                       )}
 
                       {/* Interval Between Messages - Show for multiple mode and when perDayCount > 1 */}
-                      {campaignData.recurrenceConfig?.dailyMode === 'multiple' && 
-                       campaignData.recurrenceConfig?.perDayCount > 1 && (
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Interval Between Messages (minutes)
-                          </label>
-                          <input
-                            type="number"
-                            value={campaignData.recurrenceConfig?.intervalMinutes || 0}
-                            onChange={(e) => handleRecurringConfigChange('intervalMinutes', parseInt(e.target.value) || 0)}
-                            min="0"
-                            max="1440"
-                            className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm sm:text-base ${
-                              errors.intervalMinutes ? 'border-red-500' : 'border-gray-300'
-                            }`}
-                          />
-                          {errors.intervalMinutes && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.intervalMinutes}</p>}
-                          <p className="text-xs text-gray-500 mt-1">
-                            Set to 0 to send all messages immediately, or set minutes between messages
-                          </p>
-                        </div>
-                      )}
+                      {campaignData.recurrenceConfig?.dailyMode === 'multiple' &&
+                        campaignData.recurrenceConfig?.perDayCount > 1 && (
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Interval Between Messages (minutes)
+                            </label>
+                            <input
+                              type="number"
+                              value={campaignData.recurrenceConfig?.intervalMinutes || 0}
+                              onChange={(e) => handleRecurringConfigChange('intervalMinutes', parseInt(e.target.value) || 0)}
+                              min="0"
+                              max="1440"
+                              className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm sm:text-base ${errors.intervalMinutes ? 'border-red-500' : 'border-gray-300'
+                                }`}
+                            />
+                            {errors.intervalMinutes && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.intervalMinutes}</p>}
+                            <p className="text-xs text-gray-500 mt-1">
+                              Set to 0 to send all messages immediately, or set minutes between messages
+                            </p>
+                          </div>
+                        )}
 
                       {/* Weekly or Monthly pattern selections */}
                       {campaignData.recurringPattern === 'weekly' && (
@@ -1181,11 +1163,10 @@ export default function CreateCampaign({ onClose, editData = null, onSaveComplet
                                 key={day}
                                 type="button"
                                 onClick={() => handleDaysOfWeekChange(index)}
-                                className={`p-2 border rounded-lg text-center text-xs sm:text-sm transition-all ${
-                                  campaignData.daysOfWeek?.includes(index)
+                                className={`p-2 border rounded-lg text-center text-xs sm:text-sm transition-all ${campaignData.daysOfWeek?.includes(index)
                                     ? 'bg-blue-500 text-white border-blue-500'
                                     : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'
-                                }`}
+                                  }`}
                               >
                                 {day.substring(0, 3)}
                               </button>
@@ -1207,9 +1188,8 @@ export default function CreateCampaign({ onClose, editData = null, onSaveComplet
                             onChange={handleInputChange}
                             min="1"
                             max="31"
-                            className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm sm:text-base ${
-                              errors.dayOfMonth ? 'border-red-500' : 'border-gray-300'
-                            }`}
+                            className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm sm:text-base ${errors.dayOfMonth ? 'border-red-500' : 'border-gray-300'
+                              }`}
                           />
                           {errors.dayOfMonth && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.dayOfMonth}</p>}
                         </div>
@@ -1226,9 +1206,8 @@ export default function CreateCampaign({ onClose, editData = null, onSaveComplet
                           onChange={(e) => handleRecurringConfigChange('repeatCount', parseInt(e.target.value) || 5)}
                           min="1"
                           max="365"
-                          className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm sm:text-base ${
-                            errors.repeatCount ? 'border-red-500' : 'border-gray-300'
-                          }`}
+                          className={`w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm sm:text-base ${errors.repeatCount ? 'border-red-500' : 'border-gray-300'
+                            }`}
                         />
                         {errors.repeatCount && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.repeatCount}</p>}
                         <p className="text-xs text-gray-500 mt-1">
@@ -1309,7 +1288,7 @@ export default function CreateCampaign({ onClose, editData = null, onSaveComplet
                         <div className="flex items-center gap-2">
                           <FaInfoCircle className="w-4 h-4 sm:w-5 sm:h-5 text-purple-500" />
                           <span>Total Messages: {
-                            (campaignData.recurrenceConfig?.repeatCount || campaignData.repeatCount) * 
+                            (campaignData.recurrenceConfig?.repeatCount || campaignData.repeatCount) *
                             (campaignData.recurrenceConfig?.perDayCount || 1)
                           }</span>
                         </div>
@@ -1432,19 +1411,20 @@ export default function CreateCampaign({ onClose, editData = null, onSaveComplet
           )}
 
           {/* Form Actions */}
-          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-4 sm:pt-6 border-t border-gray-200 mt-4 sm:mt-6">
+          {/* Form Actions */}
+          <div className="flex gap-2 sm:gap-3 pt-4 sm:pt-6 border-t border-gray-200 mt-4 sm:mt-6">
             <button
               type="button"
               onClick={handleClose}
               disabled={formLoading}
-              className="flex-1 px-4 sm:px-6 py-2 sm:py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 text-sm sm:text-base order-2 sm:order-1"
+              className="flex-1 px-4 sm:px-6 py-2 sm:py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 text-sm sm:text-base"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={formLoading}
-              className="flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all disabled:opacity-50 flex items-center justify-center gap-2 text-sm sm:text-base order-1 sm:order-2"
+              className="flex-1 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all disabled:opacity-50 flex items-center justify-center gap-2 text-sm sm:text-base"
             >
               {formLoading ? (
                 <>

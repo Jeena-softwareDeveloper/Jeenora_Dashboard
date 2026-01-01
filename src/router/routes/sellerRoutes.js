@@ -26,7 +26,7 @@ const Orders = lazy(() => import('../../views/seller/Orders'))
 const Payments = lazy(() => import('../../views/seller/Payments'))
 const SellerToAdmin = lazy(() => import('../../views/seller/SellerToAdmin'))
 const SellerToCustomer = lazy(() => import('../../views/seller/SellerToCustomer'))
-const Profile = lazy(() => import('../../views/seller/Profile'))
+const Profile = lazy(() => import('../../views/Profile'))
 const EditProduct = lazy(() => import('../../views/seller/EditProduct'))
 const OrderDetails = lazy(() => import('../../views/seller/OrderDetails'))
 const Pending = lazy(() => import('./../../views/Pending'))
@@ -127,11 +127,10 @@ export const sellerRoutes = [
         permission: 'chat.customer'
     },
     {
-        path: '/seller/dashboard/profile',
+        path: '/seller/profile',
         element: <Profile />,
         role: 'seller',
-        visibility: ['active', 'deactive', 'pending'],
-        permission: 'store.profile'
+        visibility: ['active', 'deactive', 'pending']
     },
     {
         path: '/seller/awareness/add-banner/:productId',

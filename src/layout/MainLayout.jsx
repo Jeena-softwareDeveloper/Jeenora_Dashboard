@@ -46,24 +46,23 @@ const MainLayout = () => {
   const sidebarWidth = collapsed ? 'w-16 lg:w-20' : 'w-72 lg:w-80';
 
   return (
-    <div className="flex flex-col w-full bg-green-500">
-      {/* Header full width */}
-      <Header showSidebar={showSidebar} setShowSidebar={setShowSidebar} />
+    <div className="flex h-screen w-full overflow-hidden">
+      {/* Sidebar */}
+      <Sidebar
+        showSidebar={showSidebar}
+        setShowSidebar={setShowSidebar}
+        collapsed={collapsed}
+        setCollapsed={setCollapsed}
+        isMobile={isMobile}
+      />
 
-      <div className="flex mt--10 flex-1 relative">
-        {/* Sidebar */}
-        <Sidebar
-          showSidebar={showSidebar}
-          setShowSidebar={setShowSidebar}
-          collapsed={collapsed}
-          setCollapsed={setCollapsed}
-        />
+      {/* Main content area */}
+      <div className="flex flex-col flex-1 overflow-hidden">
+        {/* Header */}
+        <Header showSidebar={showSidebar} setShowSidebar={setShowSidebar} />
 
-        {/* Main content */}
-        <main
-          className={`flex-1 bg-green-50 transition-all duration-300 
-            ${!isMobile && showSidebar ? (collapsed ? 'ml-16 lg:ml-20' : 'ml-72 lg:ml-86') : 'ml-0'}`}
-        >
+        {/* Page content */}
+        <main className="flex-1 overflow-y-auto bg-slate-50 p-4">
           <Outlet />
         </main>
       </div>
