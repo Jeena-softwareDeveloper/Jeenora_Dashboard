@@ -16,6 +16,7 @@ import {
   setSubscribersPage
 } from '../../../store/Reducers/Awareness/SubscriberReducer';
 import { Plus, Search, X, Loader, Edit, Trash2, Filter } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const Subscriber = () => {
   const dispatch = useDispatch();
@@ -57,13 +58,15 @@ const Subscriber = () => {
     dispatch(getSubscribers());
   }, [dispatch]);
 
-  // Clear messages after 3 seconds
+  // Handle messages with Toast
   useEffect(() => {
-    if (success || error) {
-      const timer = setTimeout(() => {
-        dispatch(clearMessages());
-      }, 3000);
-      return () => clearTimeout(timer);
+    if (success) {
+      toast.success(success, { position: 'top-right' });
+      dispatch(clearMessages());
+    }
+    if (error) {
+      toast.error(error, { position: 'top-right' });
+      dispatch(clearMessages());
     }
   }, [success, error, dispatch]);
 
@@ -189,7 +192,7 @@ const Subscriber = () => {
           {/* Mobile Add Button */}
           <button
             onClick={() => activeTab === 'subscribers' ? setShowSubscriberModal(true) : setShowCategoryModal(true)}
-            className="sm:hidden bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+            className="sm:hidden bg-[#236F21] text-white p-2 rounded-lg hover:bg-[#1B5C1A] transition-colors shadow-sm"
           >
             <Plus size={20} />
           </button>
@@ -208,7 +211,7 @@ const Subscriber = () => {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                  className="pl-10 pr-4 py-2.5 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                  className="pl-10 pr-4 py-2.5 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#236F21] bg-white"
                 />
               </>
             )}
@@ -217,7 +220,7 @@ const Subscriber = () => {
           {/* Desktop Add Button */}
           <button
             onClick={() => activeTab === 'subscribers' ? setShowSubscriberModal(true) : setShowCategoryModal(true)}
-            className="hidden sm:flex items-center gap-2 bg-blue-600 text-white px-6 py-2.5 rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-sm"
+            className="hidden sm:flex items-center gap-2 bg-[#236F21] text-white px-6 py-2.5 rounded-lg hover:bg-[#1B5C1A] transition-colors font-medium shadow-sm"
           >
             <Plus size={20} />
             <span>{activeTab === 'subscribers' ? 'New Subscriber' : 'New Category'}</span>
@@ -226,11 +229,7 @@ const Subscriber = () => {
       </div>
 
       {/* Messages */}
-      {(success || error) && (
-        <div className={`mb-4 p-3 rounded-lg ${success ? 'bg-green-100 border border-green-400 text-green-700' : 'bg-red-100 border border-red-400 text-red-700'}`}>
-          {success || error}
-        </div>
-      )}
+
 
       {/* Tabs & Filter Row */}
       <div className="flex justify-between items-center border-b border-gray-200 mb-6">
@@ -238,7 +237,7 @@ const Subscriber = () => {
           <button
             onClick={() => setActiveTab('subscribers')}
             className={`py-3 px-4 border-b-2 font-medium text-sm sm:text-base transition-colors ${activeTab === 'subscribers'
-              ? 'border-blue-600 text-blue-600'
+              ? 'border-[#236F21] text-[#236F21]'
               : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
           >
@@ -247,7 +246,7 @@ const Subscriber = () => {
           <button
             onClick={() => setActiveTab('categories')}
             className={`py-3 px-4 border-b-2 font-medium text-sm sm:text-base transition-colors ${activeTab === 'categories'
-              ? 'border-blue-600 text-blue-600'
+              ? 'border-[#236F21] text-[#236F21]'
               : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
           >
@@ -257,28 +256,11 @@ const Subscriber = () => {
 
         {/* Mobile Filter Toggle */}
         {activeTab === 'subscribers' && (
-          <button
-            onClick={() => setShowMobileFilter(!showMobileFilter)}
-            className={`sm:hidden p-2 rounded-lg transition-colors ${showMobileFilter ? 'bg-blue-50 text-blue-600' : 'text-gray-500 hover:bg-gray-100'
-              }`}
-          >
-            <Filter size={20} />
-          </button>
-        )}
-      </div>
-
-      {/* Mobile Filter Dropdown */}
-      {showMobileFilter && activeTab === 'subscribers' && (
-        <div className="sm:hidden mb-6 animate-in slide-in-from-top-2">
-          <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-            <label className="text-sm font-medium text-gray-700 mb-2 block">Filter by Category</label>
+          <div className="mb-px">
             <select
               value={selectedCategory}
-              onChange={(e) => {
-                handleCategoryFilter(e.target.value);
-                setShowMobileFilter(false);
-              }}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              onChange={(e) => handleCategoryFilter(e.target.value)}
+              className="px-3 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#236F21] text-xs sm:text-sm bg-white cursor-pointer"
             >
               <option value="">All Categories</option>
               {categories.map(category => (
@@ -288,8 +270,11 @@ const Subscriber = () => {
               ))}
             </select>
           </div>
-        </div>
-      )}
+        )}
+      </div>
+
+      {/* Mobile Filter Dropdown */}
+
 
       {/* Subscribers Tab */}
       {activeTab === 'subscribers' && (
@@ -299,30 +284,7 @@ const Subscriber = () => {
               <h2 className="text-lg sm:text-xl font-semibold text-gray-800">Subscribers</h2>
 
               {/* Desktop Filter */}
-              <div className="hidden sm:flex items-center gap-3">
-                <div className="flex items-center gap-2 text-gray-500">
-                  <Filter size={18} />
-                </div>
-                <div className="relative">
-                  <select
-                    value={selectedCategory}
-                    onChange={(e) => handleCategoryFilter(e.target.value)}
-                    className="pl-3 pr-8 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white appearance-none cursor-pointer"
-                  >
-                    <option value="">All Categories</option>
-                    {categories.map(category => (
-                      <option key={category._id} value={category._id}>
-                        {category.name}
-                      </option>
-                    ))}
-                  </select>
-                  <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </div>
-                </div>
-              </div>
+
             </div>
           </div>
 
@@ -330,7 +292,7 @@ const Subscriber = () => {
           <div className="sm:hidden">
             {subscribersLoading ? (
               <div className="p-8 text-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#236F21] mx-auto"></div>
                 <p className="mt-2 text-gray-500 text-sm">Loading subscribers...</p>
               </div>
             ) : subscribers.length === 0 ? (
@@ -346,7 +308,7 @@ const Subscriber = () => {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => handleEditSubscriber(subscriber)}
-                          className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          className="p-1.5 text-[#236F21] hover:bg-green-50 rounded-lg transition-colors"
                         >
                           <Edit size={16} />
                         </button>
@@ -374,7 +336,7 @@ const Subscriber = () => {
                       </div>
 
                       <div className="text-right">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700">
                           {subscriber.category?.name || 'Uncategorized'}
                         </span>
                       </div>
@@ -412,7 +374,7 @@ const Subscriber = () => {
                   <tr>
                     <td colSpan="5" className="px-4 sm:px-6 py-8 text-center">
                       <div className="flex justify-center">
-                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#236F21]"></div>
                       </div>
                     </td>
                   </tr>
@@ -441,7 +403,7 @@ const Subscriber = () => {
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => handleEditSubscriber(subscriber)}
-                            className="text-blue-600 hover:text-blue-900 px-2 py-1 hover:bg-blue-50 rounded"
+                            className="text-[#236F21] hover:text-[#1B5C1A] px-2 py-1 hover:bg-green-50 rounded"
                           >
                             Edit
                           </button>
@@ -500,7 +462,7 @@ const Subscriber = () => {
           <div className="sm:hidden">
             {categoriesLoading ? (
               <div className="p-8 text-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#236F21] mx-auto"></div>
                 <p className="mt-2 text-gray-500 text-sm">Loading categories...</p>
               </div>
             ) : categories.length === 0 ? (
@@ -526,7 +488,7 @@ const Subscriber = () => {
                       <div className="flex items-center gap-2 ml-4">
                         <button
                           onClick={() => handleEditCategory(category)}
-                          className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          className="p-1.5 text-[#236F21] hover:bg-green-50 rounded-lg transition-colors"
                           title="Edit"
                         >
                           <Edit size={16} />
@@ -570,7 +532,7 @@ const Subscriber = () => {
                   <tr>
                     <td colSpan="4" className="px-4 sm:px-6 py-8 text-center">
                       <div className="flex justify-center">
-                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#236F21]"></div>
                       </div>
                     </td>
                   </tr>
@@ -596,7 +558,7 @@ const Subscriber = () => {
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => handleEditCategory(category)}
-                            className="text-blue-600 hover:text-blue-900 px-2 py-1 hover:bg-blue-50 rounded"
+                            className="text-[#236F21] hover:text-[#1B5C1A] px-2 py-1 hover:bg-green-50 rounded"
                           >
                             Edit
                           </button>
@@ -645,7 +607,7 @@ const Subscriber = () => {
                   required
                   value={categoryForm.name}
                   onChange={(e) => setCategoryForm({ ...categoryForm, name: e.target.value })}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#236F21]"
                 />
               </div>
               <div>
@@ -656,7 +618,7 @@ const Subscriber = () => {
                   value={categoryForm.description}
                   onChange={(e) => setCategoryForm({ ...categoryForm, description: e.target.value })}
                   rows="3"
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#236F21]"
                 />
               </div>
               <div className="flex gap-3 pt-4">
@@ -673,7 +635,7 @@ const Subscriber = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 px-4 py-2.5 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                  className="flex-1 px-4 py-2.5 text-sm bg-[#236F21] text-white rounded-lg hover:bg-[#1B5C1A] disabled:opacity-50 transition-colors"
                 >
                   {loading ? 'Saving...' : (editingCategory ? 'Update' : 'Create')}
                 </button>
@@ -711,7 +673,7 @@ const Subscriber = () => {
                   required
                   value={subscriberForm.name}
                   onChange={(e) => setSubscriberForm({ ...subscriberForm, name: e.target.value })}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#236F21]"
                 />
               </div>
               <div>
@@ -722,7 +684,7 @@ const Subscriber = () => {
                   type="email"
                   value={subscriberForm.email}
                   onChange={(e) => setSubscriberForm({ ...subscriberForm, email: e.target.value })}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#236F21]"
                 />
               </div>
               <div>
@@ -733,7 +695,7 @@ const Subscriber = () => {
                   type="tel"
                   value={subscriberForm.phone}
                   onChange={(e) => setSubscriberForm({ ...subscriberForm, phone: e.target.value })}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#236F21]"
                 />
               </div>
               <div>
@@ -743,7 +705,7 @@ const Subscriber = () => {
                 <select
                   value={subscriberForm.categoryId}
                   onChange={(e) => setSubscriberForm({ ...subscriberForm, categoryId: e.target.value })}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#236F21]"
                 >
                   <option value="">Select Category</option>
                   {categories.map(category => (
@@ -767,7 +729,7 @@ const Subscriber = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 px-4 py-2.5 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                  className="flex-1 px-4 py-2.5 text-sm bg-[#236F21] text-white rounded-lg hover:bg-[#1B5C1A] disabled:opacity-50 transition-colors"
                 >
                   {loading ? 'Saving...' : (editingSubscriber ? 'Update' : 'Create')}
                 </button>
