@@ -257,20 +257,17 @@ const GuidesManager = () => {
         </nav>
 
         {activeTab === 'guides' && (
-          <div className="relative mb-px">
-            <div className="flex items-center">
-              <Filter size={16} className="absolute left-2 text-gray-500 z-10" />
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="pl-8 pr-4 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#236F21] text-xs sm:text-sm bg-white cursor-pointer"
-              >
-                <option value="">All</option>
-                {categories.map(c => (
-                  <option key={c._id} value={c._id}>{c.name}</option>
-                ))}
-              </select>
-            </div>
+          <div className="mb-px">
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="px-3 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#236F21] text-xs sm:text-sm bg-white cursor-pointer"
+            >
+              <option value="">All Categories</option>
+              {categories.map(c => (
+                <option key={c._id} value={c._id}>{c.name}</option>
+              ))}
+            </select>
           </div>
         )}
       </div>
