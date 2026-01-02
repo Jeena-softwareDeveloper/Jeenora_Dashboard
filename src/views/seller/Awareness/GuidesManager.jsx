@@ -233,6 +233,7 @@ const GuidesManager = () => {
       </div>
 
       {/* ---------------- Tabs & Filter Row ---------------- */}
+
       <div className="flex justify-between items-center border-b border-gray-200 mb-6">
         <nav className="flex -mb-px">
           <button
@@ -254,279 +255,282 @@ const GuidesManager = () => {
             Categories ({categories?.length || 0})
           </button>
         </nav>
+
+        {activeTab === 'guides' && (
+          <div className="relative mb-px">
+            <div className="flex items-center">
+              <Filter size={16} className="absolute left-2 text-gray-500 z-10" />
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="pl-8 pr-4 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#236F21] text-xs sm:text-sm bg-white cursor-pointer"
+              >
+                <option value="">All</option>
+                {categories.map(c => (
+                  <option key={c._id} value={c._id}>{c.name}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        )}
       </div>
 
 
       {/* ---------------- Guides Tab ---------------- */}
-      {activeTab === 'guides' && (
-        <div className="bg-white rounded-lg shadow-sm sm:shadow">
-          <div className="p-4 sm:p-6 border-b border-gray-200">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
-              <h2 className="text-lg sm:text-xl font-semibold text-gray-800">All Guides</h2>
-
-              {/* Category Filter */}
-              <div className="mt-3 sm:mt-0 relative">
-                <div className="flex items-center gap-2">
-                  <Filter size={18} className="text-gray-500" />
-                  <select
-                    value={selectedCategory}
-                    onChange={(e) => setSelectedCategory(e.target.value)}
-                    className="pl-2 pr-8 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#236F21] text-sm bg-white cursor-pointer"
-                  >
-                    <option value="">All Categories</option>
-                    {categories.map(c => (
-                      <option key={c._id} value={c._id}>{c.name}</option>
-                    ))}
-                  </select>
-                </div>
+      {
+        activeTab === 'guides' && (
+          <div className="bg-white rounded-lg shadow-sm sm:shadow">
+            {loader ? (
+              <div className="flex justify-center items-center py-20">
+                <Loader className="animate-spin text-[#236F21]" size={40} />
               </div>
-            </div>
-          </div>
-
-          {loader ? (
-            <div className="flex justify-center items-center py-20">
-              <Loader className="animate-spin text-[#236F21]" size={40} />
-            </div>
-          ) : filteredGuides.length === 0 ? (
-            <div className="p-8 text-center text-gray-500">
-              No guides found
-            </div>
-          ) : (
-            <>
-              {/* Desktop Table */}
-              <div className="hidden lg:block overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-gray-50 border-b border-gray-200">
-                    <tr>
-                      <th className="p-4 text-left font-semibold text-gray-700 text-sm">Heading</th>
-                      <th className="p-4 text-left font-semibold text-gray-700 text-sm">Category</th>
-                      <th className="p-4 text-left font-semibold text-gray-700 text-sm">Level</th>
-                      <th className="p-4 text-left font-semibold text-gray-700 text-sm">Image</th>
-                      <th className="p-4 text-left font-semibold text-gray-700 text-sm">Status</th>
-                      <th className="p-4 text-left font-semibold text-gray-700 text-sm">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredGuides.map(g => (
-                      <tr key={g._id} className={`border-b border-gray-200 hover:bg-gray-50 transition-colors ${!g.isActive ? 'bg-gray-50 opacity-80' : ''}`}>
-                        <td className="p-4 text-gray-900 font-medium max-w-xs">{g.heading}</td>
-                        <td className="p-4 text-gray-900">{g.category?.name}</td>
-                        <td className="p-4">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${g.level === 'Beginner'
-                            ? 'bg-green-100 text-green-800'
-                            : g.level === 'Intermediate'
-                              ? 'bg-yellow-100 text-yellow-800'
-                              : 'bg-red-100 text-red-800'
-                            }`}>
-                            {g.level}
-                          </span>
-                        </td>
-                        <td className="p-4">
-                          {g.image && (
-                            <img src={g.image} alt="" className="w-12 h-12 object-cover rounded border border-gray-200" />
-                          )}
-                        </td>
-                        <td className="p-4">
-                          <button
-                            onClick={() => handleToggleStatus(g)}
-                            className={`px-2 py-1 rounded text-xs font-medium transition-colors ${g.isActive
-                              ? 'bg-green-100 text-green-800 hover:bg-green-200'
-                              : 'bg-red-100 text-red-800 hover:bg-red-200'
-                              }`}
-                          >
-                            {g.isActive ? 'Active' : 'Inactive'}
-                          </button>
-                        </td>
-                        <td className="p-4">
-                          <div className="flex gap-2">
-                            <button onClick={() => openGuideModal(g)} className="text-[#236F21] hover:text-[#1B5C1A]">
-                              <Edit size={18} />
-                            </button>
-                            <button onClick={() => handleDeleteGuide(g._id)} className="text-red-600 hover:text-red-800">
-                              <Trash2 size={18} />
-                            </button>
-                          </div>
-                        </td>
+            ) : filteredGuides.length === 0 ? (
+              <div className="p-8 text-center text-gray-500">
+                No guides found
+              </div>
+            ) : (
+              <>
+                {/* Desktop Table */}
+                <div className="hidden lg:block overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-50 border-b border-gray-200">
+                      <tr>
+                        <th className="p-4 text-left font-semibold text-gray-700 text-sm">Heading</th>
+                        <th className="p-4 text-left font-semibold text-gray-700 text-sm">Category</th>
+                        <th className="p-4 text-left font-semibold text-gray-700 text-sm">Level</th>
+                        <th className="p-4 text-left font-semibold text-gray-700 text-sm">Image</th>
+                        <th className="p-4 text-left font-semibold text-gray-700 text-sm">Status</th>
+                        <th className="p-4 text-left font-semibold text-gray-700 text-sm">Actions</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {filteredGuides.map(g => (
+                        <tr key={g._id} className={`border-b border-gray-200 hover:bg-gray-50 transition-colors ${!g.isActive ? 'bg-gray-50 opacity-80' : ''}`}>
+                          <td className="p-4 text-gray-900 font-medium max-w-xs">{g.heading}</td>
+                          <td className="p-4 text-gray-900">{g.category?.name}</td>
+                          <td className="p-4">
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${g.level === 'Beginner'
+                              ? 'bg-green-100 text-green-800'
+                              : g.level === 'Intermediate'
+                                ? 'bg-yellow-100 text-yellow-800'
+                                : 'bg-red-100 text-red-800'
+                              }`}>
+                              {g.level}
+                            </span>
+                          </td>
+                          <td className="p-4">
+                            {g.image && (
+                              <img src={g.image} alt="" className="w-12 h-12 object-cover rounded border border-gray-200" />
+                            )}
+                          </td>
+                          <td className="p-4">
+                            <button
+                              onClick={() => handleToggleStatus(g)}
+                              className={`px-2 py-1 rounded text-xs font-medium transition-colors ${g.isActive
+                                ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                                : 'bg-red-100 text-red-800 hover:bg-red-200'
+                                }`}
+                            >
+                              {g.isActive ? 'Active' : 'Inactive'}
+                            </button>
+                          </td>
+                          <td className="p-4">
+                            <div className="flex gap-2">
+                              <button onClick={() => openGuideModal(g)} className="text-[#236F21] hover:text-[#1B5C1A]">
+                                <Edit size={18} />
+                              </button>
+                              <button onClick={() => handleDeleteGuide(g._id)} className="text-red-600 hover:text-red-800">
+                                <Trash2 size={18} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
 
-              {/* Mobile Cards */}
-              <div className="lg:hidden grid grid-cols-1 sm:grid-cols-2 gap-4 p-4">
-                {filteredGuides.map((g) => (
-                  <div key={g._id} className="bg-white border border-gray-200 rounded-lg p-4">
-                    <div className="flex gap-3 mb-3">
-                      {g.image && <img src={g.image} alt="" className="w-16 h-16 object-cover rounded-lg" />}
-                      <div>
-                        <h3 className="font-medium text-gray-900 line-clamp-2">{g.heading}</h3>
-                        <span className="text-xs text-gray-500">{g.category?.name}</span>
+                {/* Mobile Cards */}
+                <div className="lg:hidden grid grid-cols-1 sm:grid-cols-2 gap-4 p-4">
+                  {filteredGuides.map((g) => (
+                    <div key={g._id} className="bg-white border border-gray-200 rounded-lg p-4">
+                      <div className="flex gap-3 mb-3">
+                        {g.image && <img src={g.image} alt="" className="w-16 h-16 object-cover rounded-lg" />}
+                        <div>
+                          <h3 className="font-medium text-gray-900 line-clamp-2">{g.heading}</h3>
+                          <span className="text-xs text-gray-500">{g.category?.name}</span>
+                        </div>
+                      </div>
+                      <div className="flex justify-between items-center mt-3 pt-3 border-t">
+                        <button onClick={() => handleToggleStatus(g)} className={`text-xs font-medium px-2 py-1 rounded ${g.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                          {g.isActive ? 'Active' : 'Inactive'}
+                        </button>
+                        <div className="flex gap-3">
+                          <button onClick={() => openGuideModal(g)} className="text-[#236F21]"><Edit size={16} /></button>
+                          <button onClick={() => handleDeleteGuide(g._id)} className="text-red-600"><Trash2 size={16} /></button>
+                        </div>
                       </div>
                     </div>
-                    <div className="flex justify-between items-center mt-3 pt-3 border-t">
-                      <button onClick={() => handleToggleStatus(g)} className={`text-xs font-medium px-2 py-1 rounded ${g.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                        {g.isActive ? 'Active' : 'Inactive'}
-                      </button>
-                      <div className="flex gap-3">
-                        <button onClick={() => openGuideModal(g)} className="text-[#236F21]"><Edit size={16} /></button>
-                        <button onClick={() => handleDeleteGuide(g._id)} className="text-red-600"><Trash2 size={16} /></button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
-        </div>
-      )}
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        )
+      }
 
 
       {/* ---------------- Categories Tab ---------------- */}
-      {activeTab === 'categories' && (
-        <div className="bg-white rounded-lg shadow-sm sm:shadow">
-          <div className="p-4 sm:p-6 border-b border-gray-200">
-            <h2 className="text-lg sm:text-xl font-semibold text-gray-800">All Categories</h2>
-          </div>
+      {
+        activeTab === 'categories' && (
+          <div className="bg-white rounded-lg shadow-sm sm:shadow">
+            <div className="p-4 sm:p-6 border-b border-gray-200">
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-800">All Categories</h2>
+            </div>
 
-          {loader ? (
-            <div className="flex justify-center items-center py-20">
-              <Loader className="animate-spin text-[#236F21]" size={40} />
-            </div>
-          ) : categories.length === 0 ? (
-            <div className="p-8 text-center text-gray-500">No categories found</div>
-          ) : (
-            <div className="divide-y divide-gray-200">
-              {categories.map(c => (
-                <div key={c._id} className="p-4 flex justify-between items-center hover:bg-gray-50">
-                  <span className="font-medium text-gray-900">{c.name}</span>
-                  <button
-                    onClick={() => handleDeleteCategory(c._id)}
-                    className="text-red-600 hover:bg-red-50 p-2 rounded transition-colors"
-                  >
-                    <Trash2 size={18} />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
+            {loader ? (
+              <div className="flex justify-center items-center py-20">
+                <Loader className="animate-spin text-[#236F21]" size={40} />
+              </div>
+            ) : categories.length === 0 ? (
+              <div className="p-8 text-center text-gray-500">No categories found</div>
+            ) : (
+              <div className="divide-y divide-gray-200">
+                {categories.map(c => (
+                  <div key={c._id} className="p-4 flex justify-between items-center hover:bg-gray-50">
+                    <span className="font-medium text-gray-900">{c.name}</span>
+                    <button
+                      onClick={() => handleDeleteCategory(c._id)}
+                      className="text-red-600 hover:bg-red-50 p-2 rounded transition-colors"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )
+      }
 
       {/* ---------------- Guide Modal ---------------- */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
-            <div className="flex justify-between items-center p-6 border-b">
-              <h2 className="text-xl font-semibold">{editingGuide ? 'Edit Guide' : 'Create New Guide'}</h2>
-              <button onClick={closeGuideModal} className="p-2 hover:bg-gray-100 rounded-lg"><X size={20} /></button>
-            </div>
-            <form onSubmit={handleAddOrUpdateGuide} className="p-6 space-y-4 overflow-y-auto">
-              <div>
-                <label className="block text-sm font-medium mb-1">Category *</label>
-                <select
-                  name="categoryId"
-                  value={guideData.categoryId}
-                  onChange={handleGuideChange}
-                  className="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-[#236F21]"
-                  required
-                >
-                  <option value="">Select Category</option>
-                  {categories.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
-                </select>
+      {
+        showModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+              <div className="flex justify-between items-center p-6 border-b">
+                <h2 className="text-xl font-semibold">{editingGuide ? 'Edit Guide' : 'Create New Guide'}</h2>
+                <button onClick={closeGuideModal} className="p-2 hover:bg-gray-100 rounded-lg"><X size={20} /></button>
               </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Heading *</label>
-                <input
-                  type="text"
-                  name="heading"
-                  value={guideData.heading}
-                  onChange={handleGuideChange}
-                  className="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-[#236F21]"
-                  required
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
+              <form onSubmit={handleAddOrUpdateGuide} className="p-6 space-y-4 overflow-y-auto">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Level *</label>
+                  <label className="block text-sm font-medium mb-1">Category *</label>
                   <select
-                    name="level"
-                    value={guideData.level}
+                    name="categoryId"
+                    value={guideData.categoryId}
                     onChange={handleGuideChange}
                     className="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-[#236F21]"
                     required
                   >
-                    <option value="">Select Level</option>
-                    {LEVELS.map(l => <option key={l} value={l}>{l}</option>)}
+                    <option value="">Select Category</option>
+                    {categories.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Second Heading</label>
+                  <label className="block text-sm font-medium mb-1">Heading *</label>
                   <input
                     type="text"
-                    name="secondHeading"
-                    value={guideData.secondHeading}
+                    name="heading"
+                    value={guideData.heading}
                     onChange={handleGuideChange}
                     className="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-[#236F21]"
+                    required
                   />
                 </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Description *</label>
-                <textarea
-                  name="description"
-                  value={guideData.description}
-                  onChange={handleGuideChange}
-                  rows={4}
-                  className="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-[#236F21]"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Image</label>
-                <input type="file" name="image" onChange={handleGuideChange} className="w-full border rounded-lg p-2" />
-              </div>
-              <div className="pt-4 flex justify-end gap-3">
-                <button type="button" onClick={closeGuideModal} className="px-4 py-2 border rounded-lg hover:bg-gray-50">Cancel</button>
-                <button type="submit" disabled={loader} className="px-6 py-2 bg-[#236F21] text-white rounded-lg hover:bg-[#1B5C1A]">
-                  {loader ? 'Saving...' : (editingGuide ? 'Update' : 'Create')}
-                </button>
-              </div>
-            </form>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Level *</label>
+                    <select
+                      name="level"
+                      value={guideData.level}
+                      onChange={handleGuideChange}
+                      className="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-[#236F21]"
+                      required
+                    >
+                      <option value="">Select Level</option>
+                      {LEVELS.map(l => <option key={l} value={l}>{l}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Second Heading</label>
+                    <input
+                      type="text"
+                      name="secondHeading"
+                      value={guideData.secondHeading}
+                      onChange={handleGuideChange}
+                      className="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-[#236F21]"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Description *</label>
+                  <textarea
+                    name="description"
+                    value={guideData.description}
+                    onChange={handleGuideChange}
+                    rows={4}
+                    className="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-[#236F21]"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Image</label>
+                  <input type="file" name="image" onChange={handleGuideChange} className="w-full border rounded-lg p-2" />
+                </div>
+                <div className="pt-4 flex justify-end gap-3">
+                  <button type="button" onClick={closeGuideModal} className="px-4 py-2 border rounded-lg hover:bg-gray-50">Cancel</button>
+                  <button type="submit" disabled={loader} className="px-6 py-2 bg-[#236F21] text-white rounded-lg hover:bg-[#1B5C1A]">
+                    {loader ? 'Saving...' : (editingGuide ? 'Update' : 'Create')}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
       {/* ---------------- Category Modal ---------------- */}
-      {showCategoryModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md">
-            <div className="flex justify-between items-center p-6 border-b">
-              <h3 className="text-lg font-semibold">Add Category</h3>
-              <button onClick={() => setShowCategoryModal(false)} className="p-2 hover:bg-gray-100 rounded-lg"><X size={20} /></button>
+      {
+        showCategoryModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-md">
+              <div className="flex justify-between items-center p-6 border-b">
+                <h3 className="text-lg font-semibold">Add Category</h3>
+                <button onClick={() => setShowCategoryModal(false)} className="p-2 hover:bg-gray-100 rounded-lg"><X size={20} /></button>
+              </div>
+              <form onSubmit={handleAddCategory} className="p-6">
+                <div className="mb-4">
+                  <label className="block text-sm font-medium mb-1">Category Name *</label>
+                  <input
+                    type="text"
+                    value={categoryName}
+                    onChange={(e) => setCategoryName(e.target.value)}
+                    className="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-[#236F21]"
+                    autoFocus
+                  />
+                </div>
+                <div className="flex justify-end gap-3">
+                  <button type="button" onClick={() => setShowCategoryModal(false)} className="px-4 py-2 border rounded-lg hover:bg-gray-50">Cancel</button>
+                  <button type="submit" className="px-4 py-2 bg-[#236F21] text-white rounded-lg hover:bg-[#1B5C1A]">Add</button>
+                </div>
+              </form>
             </div>
-            <form onSubmit={handleAddCategory} className="p-6">
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-1">Category Name *</label>
-                <input
-                  type="text"
-                  value={categoryName}
-                  onChange={(e) => setCategoryName(e.target.value)}
-                  className="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-[#236F21]"
-                  autoFocus
-                />
-              </div>
-              <div className="flex justify-end gap-3">
-                <button type="button" onClick={() => setShowCategoryModal(false)} className="px-4 py-2 border rounded-lg hover:bg-gray-50">Cancel</button>
-                <button type="submit" className="px-4 py-2 bg-[#236F21] text-white rounded-lg hover:bg-[#1B5C1A]">Add</button>
-              </div>
-            </form>
           </div>
-        </div>
-      )}
+        )
+      }
 
       <ConfirmDialog {...dialogConfig} />
-    </div>
+    </div >
   );
 };
 
