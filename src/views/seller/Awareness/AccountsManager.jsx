@@ -208,8 +208,8 @@ const AccountsManager = () => {
       <button
         onClick={handleClick}
         className={`p-1 rounded-full transition-colors ${isCopied
-            ? 'bg-green-100 text-green-600'
-            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+          ? 'bg-green-100 text-green-600'
+          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
           }`}
         title={`Copy ${platform} URL`}
       >
@@ -319,12 +319,12 @@ const AccountsManager = () => {
                       <td className="p-4 text-center">
                         <div className="flex justify-center">
                           <span className={`px-3 py-1 rounded-full text-xs font-medium ${account.role === 'Admin'
-                              ? 'bg-purple-100 text-purple-800 border border-purple-200'
-                              : account.role === 'Staff'
-                                ? 'bg-blue-100 text-blue-800 border border-blue-200'
-                                : account.role === 'Customer'
-                                  ? 'bg-orange-100 text-orange-800 border border-orange-200'
-                                  : 'bg-gray-100 text-gray-800 border border-gray-200'
+                            ? 'bg-purple-100 text-purple-800 border border-purple-200'
+                            : account.role === 'Staff'
+                              ? 'bg-blue-100 text-blue-800 border border-blue-200'
+                              : account.role === 'Customer'
+                                ? 'bg-orange-100 text-orange-800 border border-orange-200'
+                                : 'bg-gray-100 text-gray-800 border border-gray-200'
                             }`}>
                             {account.role}
                           </span>
@@ -357,8 +357,8 @@ const AccountsManager = () => {
                           <button
                             onClick={() => handleToggleActive(account)}
                             className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${account.isActive
-                                ? 'bg-green-600 text-white hover:bg-green-700'
-                                : 'bg-red-600 text-white hover:bg-red-700'
+                              ? 'bg-green-600 text-white hover:bg-green-700'
+                              : 'bg-red-600 text-white hover:bg-red-700'
                               }`}
                           >
                             {account.isActive ? 'Active' : 'Inactive'}
@@ -390,7 +390,7 @@ const AccountsManager = () => {
             </div>
 
             {/* Mobile Card Layout */}
-            <div className="lg:hidden p-4 border-b border-gray-200 bg-gray-50 font-semibold text-gray-700 text-sm text-center">
+            <div className="lg:hidden p-4 border-b border-gray-200 bg-gray-50 font-semibold text-gray-700 text-sm text-left">
               Account List ({filteredAccounts.length})
             </div>
 
@@ -399,61 +399,61 @@ const AccountsManager = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4">
                 {filteredAccounts.map((account) => (
                   <div key={account._id} className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-200">
-                    {/* Card Content */}
                     <div className="p-4">
-                      {/* Name and Role Row */}
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex-1 min-w-0 text-center">
-                          <h3 className="font-medium text-gray-900 text-sm line-clamp-1 mb-1">{account.name}</h3>
-                          <div className="flex items-center gap-2 justify-center">
-                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${account.role === 'Admin'
-                                ? 'bg-purple-100 text-purple-800 border border-purple-200'
-                                : account.role === 'Staff'
-                                  ? 'bg-blue-100 text-blue-800 border border-blue-200'
-                                  : account.role === 'Customer'
-                                    ? 'bg-orange-100 text-orange-800 border border-orange-200'
-                                    : 'bg-gray-100 text-gray-800 border border-gray-200'
-                              }`}>
-                              {account.role}
-                            </span>
-                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${account.isActive
-                                ? 'bg-green-100 text-green-800 border border-green-200'
-                                : 'bg-red-100 text-red-800 border border-red-200'
-                              }`}>
-                              {account.isActive ? 'Active' : 'Inactive'}
-                            </span>
-                          </div>
+                      {/* Top Row: Name (Left) and Badges (Right) */}
+                      <div className="flex justify-between items-start mb-4">
+                        <h3 className="font-medium text-gray-900 text-sm line-clamp-1">{account.name}</h3>
+                        <div className="flex items-center gap-2 flex-wrap justify-end">
+                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${account.role === 'Admin'
+                            ? 'bg-purple-100 text-purple-800 border border-purple-200'
+                            : account.role === 'Staff'
+                              ? 'bg-blue-100 text-blue-800 border border-blue-200'
+                              : account.role === 'Customer'
+                                ? 'bg-orange-100 text-orange-800 border border-orange-200'
+                                : 'bg-gray-100 text-gray-800 border border-gray-200'
+                            }`}>
+                            {account.role}
+                          </span>
+                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${account.isActive
+                            ? 'bg-green-100 text-green-800 border border-green-200'
+                            : 'bg-red-100 text-red-800 border border-red-200'
+                            }`}>
+                            {account.isActive ? 'Active' : 'Inactive'}
+                          </span>
                         </div>
                       </div>
 
-                      {/* Area and Contact Info */}
-                      <div className="mb-3 space-y-2 text-center">
-                        <div className="flex items-center gap-2 text-xs text-gray-600 justify-center">
-                          <MapPin size={12} className="text-gray-400" />
-                          <span>{account.area}</span>
+                      {/* Middle Grid: Left (Area, Phone) | Right (Email, Socials) */}
+                      <div className="grid grid-cols-2 gap-2 mb-4">
+                        {/* Left Column */}
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-1.5 text-xs text-gray-600">
+                            <MapPin size={12} className="text-gray-400 flex-shrink-0" />
+                            <span className="truncate">{account.area || 'No Area'}</span>
+                          </div>
+                          {account.phoneNumber && (
+                            <div className="flex items-center gap-1.5 text-xs text-gray-600">
+                              <Phone size={12} className="text-gray-400 flex-shrink-0" />
+                              <span className="truncate">{account.phoneNumber}</span>
+                            </div>
+                          )}
                         </div>
-                        {account.phoneNumber && (
-                          <div className="flex items-center gap-2 text-xs text-gray-600 justify-center">
-                            <Phone size={12} className="text-gray-400" />
-                            <span>{account.phoneNumber}</span>
-                          </div>
-                        )}
-                        {account.email && (
-                          <div className="flex items-center gap-2 text-xs text-gray-600 justify-center">
-                            <Mail size={12} className="text-gray-400" />
-                            <span className="truncate">{account.email}</span>
-                          </div>
-                        )}
-                      </div>
 
-                      {/* Social Media Icons - Click to Copy */}
-                      <div className="mb-3">
-                        <div className="flex items-center gap-2 justify-center">
-                          <SocialIcon platform="twitter" url={account.twitter} size={16} accountId={account._id} />
-                          <SocialIcon platform="facebook" url={account.facebook} size={16} accountId={account._id} />
-                          <SocialIcon platform="instagram" url={account.instagram} size={16} accountId={account._id} />
-                          <SocialIcon platform="linkedin" url={account.linkedin} size={16} accountId={account._id} />
-                          <SocialIcon platform="youtube" url={account.youtube} size={16} accountId={account._id} />
+                        {/* Right Column */}
+                        <div className="space-y-2 flex flex-col items-end">
+                          {account.email && (
+                            <div className="flex items-center gap-1.5 text-xs text-gray-600 justify-end w-full">
+                              <span className="truncate">{account.email}</span>
+                              <Mail size={12} className="text-gray-400 flex-shrink-0" />
+                            </div>
+                          )}
+                          <div className="flex items-center gap-1.5 justify-end flex-wrap">
+                            <SocialIcon platform="twitter" url={account.twitter} size={14} accountId={account._id} />
+                            <SocialIcon platform="facebook" url={account.facebook} size={14} accountId={account._id} />
+                            <SocialIcon platform="instagram" url={account.instagram} size={14} accountId={account._id} />
+                            <SocialIcon platform="linkedin" url={account.linkedin} size={14} accountId={account._id} />
+                            <SocialIcon platform="youtube" url={account.youtube} size={14} accountId={account._id} />
+                          </div>
                         </div>
                       </div>
 
@@ -462,8 +462,8 @@ const AccountsManager = () => {
                         <button
                           onClick={() => handleToggleActive(account)}
                           className={`px-3 py-1 rounded text-xs font-medium transition-colors ${account.isActive
-                              ? 'bg-orange-100 text-orange-700 hover:bg-orange-200'
-                              : 'bg-green-100 text-green-700 hover:bg-green-200'
+                            ? 'bg-orange-100 text-orange-700 hover:bg-orange-200'
+                            : 'bg-green-100 text-green-700 hover:bg-green-200'
                             }`}
                         >
                           {account.isActive ? 'Deactivate' : 'Activate'}
