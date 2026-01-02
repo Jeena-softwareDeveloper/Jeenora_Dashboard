@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { 
-  getUserById, 
-  deleteUser, 
-  clearUserSessions 
+import {
+  getUserById,
+  deleteUser,
+  clearUserSessions
 } from "../../../../store/Reducers/Awareness/analyticsReducer";
+import UAParser from "ua-parser-js";
 
 const UserDetailModal = ({ userId, onClose }) => {
   const dispatch = useDispatch();
@@ -55,7 +56,7 @@ const UserDetailModal = ({ userId, onClose }) => {
 
   const confirmDelete = useCallback(() => {
     const { type } = deleteModal;
-    
+
     if (type === 'user') {
       dispatch(deleteUser(userId)).then(() => {
         onClose(); // Close modal after successful deletion
@@ -63,18 +64,18 @@ const UserDetailModal = ({ userId, onClose }) => {
     } else if (type === 'sessions') {
       dispatch(clearUserSessions(userId));
     }
-    
+
     closeDeleteModal();
   }, [deleteModal, userId, dispatch, onClose, closeDeleteModal]);
 
   // Memoized formatting functions
   const formatDuration = useCallback((minutes) => {
     if (!minutes || minutes === 0) return "0m";
-    
+
     const hours = Math.floor(minutes / 60);
     const mins = Math.floor(minutes % 60);
     const secs = Math.round((minutes % 1) * 60);
-    
+
     if (hours > 0) {
       return `${hours}h ${mins}m ${secs}s`;
     } else if (mins > 0) {
@@ -109,6 +110,47 @@ const UserDetailModal = ({ userId, onClose }) => {
   const acquisitionSources = useMemo(() => {
     return userDetails?.acquisition?.sources || [];
   }, [userDetails?.acquisition?.sources]);
+
+  // Memoized device info parsing
+  const parsedDeviceInfo = useMemo(() => {
+    if (!userDetails?.device) return {};
+
+    // If we have raw user agent string or "Win32", try to parse it
+    const uaParser = new UAParser();
+
+    // Check if browser field looks like a user agent string
+    const browserStr = userDetails.device.browser || '';
+    const osStr = userDetails.device.os || '';
+
+    // Use the stored User Agent if available, otherwise try to use the browser field if it looks like a UA
+    const uaString = userDetails.device.user_agent || (browserStr.includes('Mozilla') ? browserStr : '');
+
+    if (uaString) {
+      uaParser.setUA(uaString);
+      const result = uaParser.getResult();
+
+      return {
+        os: `${result.os.name || 'Windows'} ${result.os.version || ''}`.trim(),
+        browser: `${result.browser.name || 'Unknown'} ${result.browser.version || ''}`.trim(),
+        device_type: result.device.type || userDetails.device.device_type || 'desktop',
+        screen_resolution: userDetails.device.screen_resolution,
+        language: userDetails.device.language
+      };
+    }
+
+    // Fallback for simple "Win32" case if no UA string
+    let displayOS = osStr;
+    if (osStr === 'Win32') displayOS = 'Windows';
+    if (osStr === 'MacIntel') displayOS = 'macOS';
+
+    return {
+      os: displayOS,
+      browser: browserStr,
+      device_type: userDetails.device.device_type,
+      screen_resolution: userDetails.device.screen_resolution,
+      language: userDetails.device.language
+    };
+  }, [userDetails?.device]);
 
   // Close modal on Escape key
   useEffect(() => {
@@ -165,23 +207,21 @@ const UserDetailModal = ({ userId, onClose }) => {
                     👤 User Analytics - {userDetails.user_id}
                   </h3>
                   <p className="text-gray-600 mt-1 text-sm">
-                    First seen: {formatDate(userDetails.first_seen_at)} | 
+                    First seen: {formatDate(userDetails.first_seen_at)} |
                     Last active: {formatDate(userDetails.last_active_at)}
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  <div className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    userDetails.is_online 
-                      ? 'bg-green-100 text-green-800 border border-green-200' 
-                      : 'bg-gray-100 text-gray-800 border border-gray-200'
-                  }`}>
+                  <div className={`px-3 py-1 rounded-full text-sm font-medium ${userDetails.is_online
+                    ? 'bg-green-100 text-green-800 border border-green-200'
+                    : 'bg-gray-100 text-gray-800 border border-gray-200'
+                    }`}>
                     {userDetails.is_online ? '🟢 Online' : '⚫ Offline'}
                   </div>
-                  <div className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    userDetails.status === 'new' 
-                      ? 'bg-green-100 text-green-800 border border-green-200' 
-                      : 'bg-blue-100 text-blue-800 border border-blue-200'
-                  }`}>
+                  <div className={`px-3 py-1 rounded-full text-sm font-medium ${userDetails.status === 'new'
+                    ? 'bg-green-100 text-green-800 border border-green-200'
+                    : 'bg-blue-100 text-blue-800 border border-blue-200'
+                    }`}>
                     {userDetails.status === 'new' ? '🆕 New User' : '🔄 Returning User'}
                   </div>
                 </div>
@@ -208,7 +248,7 @@ const UserDetailModal = ({ userId, onClose }) => {
                     </>
                   )}
                 </button>
-                
+
                 <button
                   onClick={() => openDeleteModal('user')}
                   disabled={loading.deleteUser}
@@ -243,17 +283,15 @@ const UserDetailModal = ({ userId, onClose }) => {
                   <button
                     key={tab.key}
                     onClick={() => setActiveTab(tab.key)}
-                    className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap flex items-center gap-2 ${
-                      activeTab === tab.key
-                        ? "border-blue-500 text-blue-600"
-                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                    }`}
+                    className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap flex items-center gap-2 ${activeTab === tab.key
+                      ? "border-blue-500 text-blue-600"
+                      : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                      }`}
                   >
                     {tab.label}
                     {tab.count !== null && (
-                      <span className={`px-1.5 py-0.5 rounded-full text-xs ${
-                        activeTab === tab.key ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600'
-                      }`}>
+                      <span className={`px-1.5 py-0.5 rounded-full text-xs ${activeTab === tab.key ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600'
+                        }`}>
                         {tab.count}
                       </span>
                     )}
@@ -263,12 +301,12 @@ const UserDetailModal = ({ userId, onClose }) => {
             </div>
 
             {/* Overview Tab */}
-            {activeTab === "overview" && <OverviewTab userDetails={userDetails} formatDuration={formatDuration} formatDate={formatDate} />}
+            {activeTab === "overview" && <OverviewTab userDetails={userDetails} deviceInfo={parsedDeviceInfo} formatDuration={formatDuration} formatDate={formatDate} />}
 
             {/* Sessions Tab */}
             {activeTab === "sessions" && (
-              <SessionsTab 
-                sessions={allSessions} 
+              <SessionsTab
+                sessions={allSessions}
                 totalSessions={userDetails.sessions?.total || 0}
                 sessionsLimit={sessionsLimit}
                 setSessionsLimit={setSessionsLimit}
@@ -280,7 +318,7 @@ const UserDetailModal = ({ userId, onClose }) => {
 
             {/* Pages Tab */}
             {activeTab === "pages" && (
-              <PagesTab 
+              <PagesTab
                 pages={pageAnalytics}
                 totalPages={userDetails.page_analytics?.total_unique_pages || 0}
                 formatDuration={formatDuration}
@@ -290,7 +328,7 @@ const UserDetailModal = ({ userId, onClose }) => {
 
             {/* Acquisition Tab */}
             {activeTab === "acquisition" && (
-              <AcquisitionTab 
+              <AcquisitionTab
                 sources={acquisitionSources}
                 formatDate={formatDate}
               />
@@ -314,7 +352,7 @@ const UserDetailModal = ({ userId, onClose }) => {
       </div>
 
       {/* Delete Confirmation Modal */}
-      <DeleteConfirmationModal 
+      <DeleteConfirmationModal
         isOpen={deleteModal.isOpen}
         title={deleteModal.title}
         message={deleteModal.message}
@@ -349,11 +387,11 @@ const DeleteConfirmationModal = ({ isOpen, title, message, loading, onConfirm, o
               </p>
             </div>
           </div>
-          
+
           <p className="text-gray-600 mb-6">
             {message}
           </p>
-          
+
           <div className="flex justify-end gap-3">
             <button
               onClick={onCancel}
@@ -383,27 +421,27 @@ const DeleteConfirmationModal = ({ isOpen, title, message, loading, onConfirm, o
 };
 
 // Sub-components for better organization
-const OverviewTab = ({ userDetails, formatDuration, formatDate }) => (
+const OverviewTab = ({ userDetails, deviceInfo, formatDuration, formatDate }) => (
   <div className="space-y-6">
     {/* Engagement Stats */}
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <StatCard 
-        label="Total Sessions" 
+      <StatCard
+        label="Total Sessions"
         value={userDetails.engagement?.total_sessions || 0}
         bgColor="blue"
       />
-      <StatCard 
-        label="Total Time" 
+      <StatCard
+        label="Total Time"
         value={formatDuration(userDetails.engagement?.total_time_spent_min)}
         bgColor="green"
       />
-      <StatCard 
-        label="Pages Visited" 
+      <StatCard
+        label="Pages Visited"
         value={userDetails.engagement?.total_pages_visited || 0}
         bgColor="purple"
       />
-      <StatCard 
-        label="Avg. Session" 
+      <StatCard
+        label="Avg. Session"
         value={formatDuration(userDetails.engagement?.avg_session_time_min)}
         bgColor="orange"
       />
@@ -412,11 +450,11 @@ const OverviewTab = ({ userDetails, formatDuration, formatDate }) => (
     {/* Device & Location */}
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <InfoCard title="💻 Device Info">
-        <InfoItem label="OS" value={userDetails.device?.os} />
-        <InfoItem label="Browser" value={userDetails.device?.browser} />
-        <InfoItem label="Device Type" value={userDetails.device?.device_type} />
-        <InfoItem label="Screen" value={userDetails.device?.screen_resolution} />
-        <InfoItem label="Language" value={userDetails.device?.language} />
+        <InfoItem label="OS" value={deviceInfo?.os || userDetails.device?.os} />
+        <InfoItem label="Browser" value={deviceInfo?.browser || userDetails.device?.browser} />
+        <InfoItem label="Device Type" value={deviceInfo?.device_type || userDetails.device?.device_type} />
+        <InfoItem label="Screen" value={deviceInfo?.screen_resolution || userDetails.device?.screen_resolution} />
+        <InfoItem label="Language" value={deviceInfo?.language || userDetails.device?.language} />
       </InfoCard>
 
       <InfoCard title="🌍 Location">
@@ -447,7 +485,7 @@ const SessionsTab = ({ sessions, totalSessions, sessionsLimit, setSessionsLimit,
       </h4>
       <div className="flex items-center space-x-2">
         <label className="text-sm text-gray-600 whitespace-nowrap">Show:</label>
-        <select 
+        <select
           value={sessionsLimit}
           onChange={(e) => setSessionsLimit(parseInt(e.target.value))}
           className="border border-gray-300 rounded px-2 py-1 text-sm bg-white"
@@ -477,9 +515,9 @@ const SessionsTab = ({ sessions, totalSessions, sessionsLimit, setSessionsLimit,
             </thead>
             <tbody>
               {sessions.map((session, index) => (
-                <SessionRow 
-                  key={session.session_id} 
-                  session={session} 
+                <SessionRow
+                  key={session.session_id}
+                  session={session}
                   formatDuration={formatDuration}
                   formatDate={formatDate}
                   formatTime={formatTime}
@@ -490,7 +528,7 @@ const SessionsTab = ({ sessions, totalSessions, sessionsLimit, setSessionsLimit,
         </div>
       </div>
     ) : (
-      <EmptyState 
+      <EmptyState
         icon="🕒"
         title="No session data available"
         message="Session data will appear when users interact with your application"
@@ -508,16 +546,16 @@ const PagesTab = ({ pages, totalPages, formatDuration, formatDate }) => (
     {pages.length > 0 ? (
       <div className="space-y-4">
         {pages.map((page, index) => (
-          <PageCard 
-            key={page.page_url} 
-            page={page} 
+          <PageCard
+            key={page.page_url}
+            page={page}
             formatDuration={formatDuration}
             formatDate={formatDate}
           />
         ))}
       </div>
     ) : (
-      <EmptyState 
+      <EmptyState
         icon="📄"
         title="No page data available"
         message="Page tracking will appear when users navigate between pages"
@@ -535,15 +573,15 @@ const AcquisitionTab = ({ sources, formatDate }) => (
     {sources.length > 0 ? (
       <div className="space-y-4">
         {sources.map((source, index) => (
-          <AcquisitionCard 
-            key={source._id || 'direct'} 
-            source={source} 
+          <AcquisitionCard
+            key={source._id || 'direct'}
+            source={source}
             formatDate={formatDate}
           />
         ))}
       </div>
     ) : (
-      <EmptyState 
+      <EmptyState
         icon="🔗"
         title="No acquisition data available"
         message="Acquisition data appears when users come from external sources"
@@ -615,11 +653,10 @@ const SessionRow = ({ session, formatDuration, formatDate, formatTime }) => (
       </span>
     </td>
     <td className="px-4 py-3 text-center">
-      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs ${
-        session.is_active
-          ? 'bg-green-100 text-green-800 border border-green-200'
-          : 'bg-gray-100 text-gray-800 border border-gray-200'
-      }`}>
+      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs ${session.is_active
+        ? 'bg-green-100 text-green-800 border border-green-200'
+        : 'bg-gray-100 text-gray-800 border border-gray-200'
+        }`}>
         {session.is_active ? '🟢 Active' : '⚫ Closed'}
       </span>
     </td>
@@ -655,9 +692,9 @@ const PageCard = ({ page, formatDuration, formatDate }) => (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm text-gray-600">
       <MetricItem label="Total Time" value={formatDuration(page.total_time_spent_min)} />
       <MetricItem label="Avg. Time" value={formatDuration(page.avg_time_spent_min)} />
-      <MetricItem 
-        label="Time per Visit" 
-        value={page.total_visits > 0 ? formatDuration(page.total_time_spent_min / page.total_visits) : '0m'} 
+      <MetricItem
+        label="Time per Visit"
+        value={page.total_visits > 0 ? formatDuration(page.total_time_spent_min / page.total_visits) : '0m'}
       />
       <MetricItem label="Last Visit" value={formatDate(page.last_visit)} />
     </div>
