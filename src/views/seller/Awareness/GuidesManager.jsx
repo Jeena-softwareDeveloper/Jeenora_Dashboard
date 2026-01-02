@@ -6,7 +6,7 @@ import {
   addGuide, getGuides, updateGuide, deleteGuide,
   toggleGuideStatus, clearMessages
 } from '../../../store/Reducers/Awareness/guideReducer';
-import { Plus, Edit, Trash2, Eye, EyeOff, X, Search, Loader } from 'lucide-react';
+import { Plus, Edit, Trash2, X, Search, Loader, Filter } from 'lucide-react';
 import toast from 'react-hot-toast';
 import ConfirmDialog from '../../../utils/ConfirmDialog';
 import useConfirmDialog from '../../../utils/useConfirmDialog';
@@ -17,11 +17,13 @@ const GuidesManager = () => {
   const { dialogConfig, showDialog } = useConfirmDialog();
 
   // ---------------- State ----------------
+  const [activeTab, setActiveTab] = useState('guides');
   const [categoryName, setCategoryName] = useState('');
-  const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState(false); // Guide Modal
+  const [showCategoryModal, setShowCategoryModal] = useState(false); // New Category Modal (to match UI)
   const [editingGuide, setEditingGuide] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState('');
   const [guideData, setGuideData] = useState({
     heading: '', level: '', secondHeading: '', description: '', categoryId: '', image: null
   });
@@ -48,28 +50,37 @@ const GuidesManager = () => {
 
   // ---------------- Filter Guides ----------------
   const filteredGuides = useMemo(() => {
-    if (!guides) return [];
+    let filtered = guides || [];
 
-    if (!searchTerm) return guides;
+    if (selectedCategory) {
+      filtered = filtered.filter(g => g.category?._id === selectedCategory);
+    }
 
-    return guides.filter(guide =>
-      guide.heading?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      guide.level?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      guide.secondHeading?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      guide.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      guide.category?.name?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [guides, searchTerm]);
+    if (searchTerm) {
+      const lower = searchTerm.toLowerCase();
+      filtered = filtered.filter(guide =>
+        guide.heading?.toLowerCase().includes(lower) ||
+        guide.level?.toLowerCase().includes(lower) ||
+        guide.secondHeading?.toLowerCase().includes(lower) ||
+        guide.description?.toLowerCase().includes(lower) ||
+        guide.category?.name?.toLowerCase().includes(lower)
+      );
+    }
+
+    return filtered;
+  }, [guides, searchTerm, selectedCategory]);
 
   // ---------------- Handlers ----------------
   // Category
-  const handleAddCategory = () => {
+  const handleAddCategory = (e) => {
+    e?.preventDefault(); // Handle form submit
     if (!categoryName.trim()) {
       toast.error('Please enter a category name');
       return;
     }
     dispatch(addCategory(categoryName));
     setCategoryName('');
+    setShowCategoryModal(false);
   };
 
   const handleDeleteCategory = (id) => {
@@ -103,7 +114,6 @@ const GuidesManager = () => {
       });
     }
     setShowModal(true);
-    setMobileMenuOpen(null);
   };
 
   const closeGuideModal = () => {
@@ -152,13 +162,11 @@ const GuidesManager = () => {
         dispatch(deleteGuide(id));
       }
     });
-    setMobileMenuOpen(null);
   };
 
   // Toggle active/inactive
   const handleToggleStatus = (guide) => {
     const action = guide.isActive ? 'deactivate' : 'activate';
-
     showDialog({
       title: `${action.charAt(0).toUpperCase() + action.slice(1)} Guide`,
       message: `Are you sure you want to ${action} this guide?`,
@@ -168,425 +176,320 @@ const GuidesManager = () => {
         dispatch(toggleGuideStatus(guide._id));
       }
     });
-    setMobileMenuOpen(null);
+  };
+
+  const handleCreateButtonClick = () => {
+    if (activeTab === 'guides') {
+      openGuideModal();
+    } else {
+      setShowCategoryModal(true);
+    }
   };
 
   return (
-    <div className=" bg-green-50 p-4 sm:p-6 space-y-6">
-
-      {/* ---------------- Header ---------------- */}
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6 lg:mb-8">
-        <div className="w-full lg:w-auto flex justify-between items-center">
+    <div className="bg-gray-50 p-3 sm:p-4 md:p-6 min-h-screen">
+      {/* ---------------- Header Section ---------------- */}
+      <div className="flex flex-col gap-4 mb-6">
+        {/* Row 1: Title & Mobile Create Button */}
+        <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">Guides Manager</h1>
-            <p className="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">Manage guide categories and content</p>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">Guides Manager</h1>
+            <p className="text-gray-600 mt-1 text-sm sm:text-base">Manage guides and categories</p>
           </div>
-          {/* Mobile Create Button (Icon Only) */}
+
           <button
-            onClick={() => openGuideModal()}
-            className="lg:hidden bg-[#236F21] text-white p-2 rounded-lg hover:bg-[#1B5C1A] transition-colors shadow-sm ml-4 flex-shrink-0"
+            onClick={handleCreateButtonClick}
+            className="sm:hidden bg-[#236F21] text-white p-2 rounded-lg hover:bg-[#1B5C1A] transition-colors shadow-sm"
           >
-            <Plus size={24} />
+            <Plus size={20} />
           </button>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
-          <div className="relative w-full lg:w-64">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-            <input
-              type="text"
-              placeholder="Search guides..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#236F21] w-full"
-            />
+        {/* Row 2: Search & Desktop Create Button */}
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+          <div className={`relative w-full sm:w-96 ${activeTab !== 'guides' ? 'invisible sm:visible' : ''}`}>
+            {activeTab === 'guides' && (
+              <>
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                <input
+                  type="text"
+                  placeholder="Search guides..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 pr-4 py-2.5 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#236F21] bg-white"
+                />
+              </>
+            )}
           </div>
 
-          {/* Desktop Create Button */}
           <button
-            onClick={() => openGuideModal()}
-            className="hidden lg:flex bg-[#236F21] text-white px-4 py-2 rounded-lg hover:bg-[#1B5C1A] transition-colors items-center gap-2 justify-center shadow-sm"
+            onClick={handleCreateButtonClick}
+            className="hidden sm:flex items-center gap-2 bg-[#236F21] text-white px-6 py-2.5 rounded-lg hover:bg-[#1B5C1A] transition-colors font-medium shadow-sm"
           >
             <Plus size={20} />
-            <span>Add Guide</span>
+            <span>{activeTab === 'guides' ? 'New Guide' : 'New Category'}</span>
           </button>
         </div>
       </div>
 
-      {/* ---------------- Category Section ---------------- */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-        <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4">Categories</h2>
-        <div className="flex flex-col sm:flex-row gap-3 mb-6">
-          <input
-            type="text"
-            value={categoryName}
-            onChange={(e) => setCategoryName(e.target.value)}
-            placeholder="Enter category name"
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#236F21] focus:border-[#236F21] text-sm sm:text-base"
-          />
+      {/* ---------------- Tabs & Filter Row ---------------- */}
+      <div className="flex justify-between items-center border-b border-gray-200 mb-6">
+        <nav className="flex -mb-px">
           <button
-            onClick={handleAddCategory}
-            className="bg-[#236F21] text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-[#1B5C1A] transition-colors flex items-center gap-2 justify-center shadow-sm text-sm sm:text-base"
+            onClick={() => setActiveTab('guides')}
+            className={`py-3 px-4 border-b-2 font-medium text-sm sm:text-base transition-colors ${activeTab === 'guides'
+              ? 'border-[#236F21] text-[#236F21]'
+              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
           >
-            <Plus size={20} />
-            <span className="hidden sm:inline">Add Category</span>
+            Guides ({guides?.length || 0})
           </button>
-        </div>
+          <button
+            onClick={() => setActiveTab('categories')}
+            className={`py-3 px-4 border-b-2 font-medium text-sm sm:text-base transition-colors ${activeTab === 'categories'
+              ? 'border-[#236F21] text-[#236F21]'
+              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+          >
+            Categories ({categories?.length || 0})
+          </button>
+        </nav>
+      </div>
 
-        <div className="space-y-2">
-          {categories.map(c => (
-            <div key={c._id} className="flex justify-between items-center p-3 sm:p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-              <span className="font-medium text-gray-900 text-sm sm:text-base">{c.name}</span>
-              <button
-                onClick={() => handleDeleteCategory(c._id)}
-                className="text-red-600 hover:bg-red-50 px-2 sm:px-3 py-1 rounded-lg transition-colors border border-red-600 hover:border-red-700 flex items-center gap-1 sm:gap-2 text-sm"
-              >
-                <Trash2 size={14} className="sm:w-4 sm:h-4" />
-                <span className="hidden sm:inline">Delete</span>
-              </button>
+
+      {/* ---------------- Guides Tab ---------------- */}
+      {activeTab === 'guides' && (
+        <div className="bg-white rounded-lg shadow-sm sm:shadow">
+          <div className="p-4 sm:p-6 border-b border-gray-200">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-800">All Guides</h2>
+
+              {/* Category Filter */}
+              <div className="mt-3 sm:mt-0 relative">
+                <div className="flex items-center gap-2">
+                  <Filter size={18} className="text-gray-500" />
+                  <select
+                    value={selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    className="pl-2 pr-8 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#236F21] text-sm bg-white cursor-pointer"
+                  >
+                    <option value="">All Categories</option>
+                    {categories.map(c => (
+                      <option key={c._id} value={c._id}>{c.name}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
             </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ---------------- Guides Section ---------------- */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 sm:p-6 border-b border-gray-200">
-          <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-0">All Guides</h2>
-
-        </div>
-
-        {/* ---------------- Guides Table ---------------- */}
-        {loader ? (
-          <div className="flex justify-center items-center py-20">
-            <Loader className="animate-spin text-[#236F21]" size={40} />
           </div>
-        ) : (
-          <>
-            {/* Desktop Table */}
-            <div className="hidden lg:block">
-              <table className="w-full">
-                <thead className="bg-gray-50 border-b border-gray-200">
-                  <tr>
-                    <th className="p-4 text-left font-semibold text-gray-700 text-sm">Category</th>
-                    <th className="p-4 text-left font-semibold text-gray-700 text-sm">Heading</th>
-                    <th className="p-4 text-left font-semibold text-gray-700 text-sm">Level</th>
-                    <th className="p-4 text-left font-semibold text-gray-700 text-sm">Second Heading</th>
-                    <th className="p-4 text-left font-semibold text-gray-700 text-sm">Description</th>
-                    <th className="p-4 text-left font-semibold text-gray-700 text-sm">Image</th>
-                    <th className="p-4 text-left font-semibold text-gray-700 text-sm">Status</th>
-                    <th className="p-4 text-left font-semibold text-gray-700 text-sm">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredGuides.map(g => (
-                    <tr key={g._id} className={`border-b border-gray-200 hover:bg-gray-50 transition-colors ${!g.isActive ? 'bg-gray-50 opacity-80' : ''}`}>
-                      <td className="p-4 text-gray-900 font-medium">{g.category?.name}</td>
-                      <td className="p-4 text-gray-900 max-w-xs truncate">{g.heading}</td>
-                      <td className="p-4">
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${g.level === 'Beginner'
-                            ? 'bg-green-100 text-green-800 border border-green-200'
-                            : g.level === 'Intermediate'
-                              ? 'bg-yellow-100 text-yellow-800 border border-yellow-200'
-                              : 'bg-red-100 text-red-800 border border-red-200'
-                          }`}>
-                          {g.level}
-                        </span>
-                      </td>
-                      <td className="p-4 text-gray-900 max-w-xs truncate">{g.secondHeading}</td>
-                      <td className="p-4 text-gray-600 text-sm max-w-xs truncate">{g.description}</td>
-                      <td className="p-4">
-                        {g.image && (
-                          <img
-                            src={g.image}
-                            alt={g.heading}
-                            className="w-20 h-14 object-cover rounded-lg border border-gray-200"
-                          />
-                        )}
-                      </td>
-                      <td className="p-4">
-                        <button
-                          onClick={() => handleToggleStatus(g)}
-                          className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${g.isActive
-                              ? 'bg-green-600 text-white hover:bg-green-700'
-                              : 'bg-red-600 text-white hover:bg-red-700'
-                            }`}
-                        >
-                          {g.isActive ? 'Active' : 'Inactive'}
-                        </button>
-                      </td>
-                      <td className="p-4">
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => openGuideModal(g)}
-                            className="p-2 text-[#236F21] hover:bg-green-50 rounded-lg transition-colors border border-[#236F21] hover:border-[#1B5C1A]"
-                            title="Edit"
-                          >
-                            <Edit size={16} />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteGuide(g._id)}
-                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-red-600 hover:border-red-700"
-                            title="Delete"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      </td>
+
+          {loader ? (
+            <div className="flex justify-center items-center py-20">
+              <Loader className="animate-spin text-[#236F21]" size={40} />
+            </div>
+          ) : filteredGuides.length === 0 ? (
+            <div className="p-8 text-center text-gray-500">
+              No guides found
+            </div>
+          ) : (
+            <>
+              {/* Desktop Table */}
+              <div className="hidden lg:block overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                      <th className="p-4 text-left font-semibold text-gray-700 text-sm">Heading</th>
+                      <th className="p-4 text-left font-semibold text-gray-700 text-sm">Category</th>
+                      <th className="p-4 text-left font-semibold text-gray-700 text-sm">Level</th>
+                      <th className="p-4 text-left font-semibold text-gray-700 text-sm">Image</th>
+                      <th className="p-4 text-left font-semibold text-gray-700 text-sm">Status</th>
+                      <th className="p-4 text-left font-semibold text-gray-700 text-sm">Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Mobile Card Layout */}
-            <div className="lg:hidden p-4 border-b border-gray-200 bg-gray-50 font-semibold text-gray-700 text-sm">
-              Guide List ({filteredGuides.length})
-            </div>
-
-            {/* Card Layout for Mobile/Tablet */}
-            <div className="lg:hidden">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4">
-                {filteredGuides.map((g) => (
-                  <div key={g._id} className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-200">
-                    {/* Card Content */}
-                    <div className="p-4">
-                      {/* Image and Basic Info Row */}
-                      <div className="flex items-start gap-3 mb-3">
-                        {/* Guide Image */}
-                        <div className="flex-shrink-0">
+                  </thead>
+                  <tbody>
+                    {filteredGuides.map(g => (
+                      <tr key={g._id} className={`border-b border-gray-200 hover:bg-gray-50 transition-colors ${!g.isActive ? 'bg-gray-50 opacity-80' : ''}`}>
+                        <td className="p-4 text-gray-900 font-medium max-w-xs">{g.heading}</td>
+                        <td className="p-4 text-gray-900">{g.category?.name}</td>
+                        <td className="p-4">
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${g.level === 'Beginner'
+                            ? 'bg-green-100 text-green-800'
+                            : g.level === 'Intermediate'
+                              ? 'bg-yellow-100 text-yellow-800'
+                              : 'bg-red-100 text-red-800'
+                            }`}>
+                            {g.level}
+                          </span>
+                        </td>
+                        <td className="p-4">
                           {g.image && (
-                            <img
-                              src={g.image}
-                              alt={g.heading}
-                              className="w-16 h-12 object-cover rounded-lg border border-gray-200"
-                            />
+                            <img src={g.image} alt="" className="w-12 h-12 object-cover rounded border border-gray-200" />
                           )}
-                        </div>
-
-                        {/* Heading and Status */}
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-medium text-gray-900 text-sm line-clamp-2 mb-1">{g.heading}</h3>
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${g.level === 'Beginner'
-                                ? 'bg-green-100 text-green-800 border border-green-200'
-                                : g.level === 'Intermediate'
-                                  ? 'bg-yellow-100 text-yellow-800 border border-yellow-200'
-                                  : 'bg-red-100 text-red-800 border border-red-200'
-                              }`}>
-                              {g.level}
-                            </span>
-                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${g.isActive
-                                ? 'bg-green-100 text-green-800 border border-green-200'
-                                : 'bg-red-100 text-red-800 border border-red-200'
-                              }`}>
-                              {g.isActive ? 'Active' : 'Inactive'}
-                            </span>
+                        </td>
+                        <td className="p-4">
+                          <button
+                            onClick={() => handleToggleStatus(g)}
+                            className={`px-2 py-1 rounded text-xs font-medium transition-colors ${g.isActive
+                              ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                              : 'bg-red-100 text-red-800 hover:bg-red-200'
+                              }`}
+                          >
+                            {g.isActive ? 'Active' : 'Inactive'}
+                          </button>
+                        </td>
+                        <td className="p-4">
+                          <div className="flex gap-2">
+                            <button onClick={() => openGuideModal(g)} className="text-[#236F21] hover:text-[#1B5C1A]">
+                              <Edit size={18} />
+                            </button>
+                            <button onClick={() => handleDeleteGuide(g._id)} className="text-red-600 hover:text-red-800">
+                              <Trash2 size={18} />
+                            </button>
                           </div>
-                        </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile Cards */}
+              <div className="lg:hidden grid grid-cols-1 sm:grid-cols-2 gap-4 p-4">
+                {filteredGuides.map((g) => (
+                  <div key={g._id} className="bg-white border border-gray-200 rounded-lg p-4">
+                    <div className="flex gap-3 mb-3">
+                      {g.image && <img src={g.image} alt="" className="w-16 h-16 object-cover rounded-lg" />}
+                      <div>
+                        <h3 className="font-medium text-gray-900 line-clamp-2">{g.heading}</h3>
+                        <span className="text-xs text-gray-500">{g.category?.name}</span>
                       </div>
-
-                      {/* Category and Second Heading */}
-                      <div className="mb-2">
-                        <div className="flex items-center justify-between text-xs text-gray-600">
-                          <span className="font-medium">{g.category?.name}</span>
-                          {g.secondHeading && (
-                            <span className="text-gray-500 truncate ml-2">{g.secondHeading}</span>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Description */}
-                      <div className="mb-2">
-                        <p className="text-gray-600 text-xs line-clamp-2">{g.description}</p>
-                      </div>
-
-                      {/* Action Buttons Row */}
-                      <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                        <button
-                          onClick={() => handleToggleStatus(g)}
-                          className={`px-3 py-1 rounded text-xs font-medium transition-colors ${g.isActive
-                              ? 'bg-orange-100 text-orange-700 hover:bg-orange-200'
-                              : 'bg-green-100 text-green-700 hover:bg-green-200'
-                            }`}
-                        >
-                          {g.isActive ? 'Deactivate' : 'Activate'}
-                        </button>
-
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => openGuideModal(g)}
-                            className="p-1.5 text-[#236F21] hover:bg-green-50 rounded-lg transition-colors border border-[#236F21] hover:border-[#1B5C1A]"
-                            title="Edit"
-                          >
-                            <Edit size={14} />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteGuide(g._id)}
-                            className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-red-600 hover:border-red-700"
-                            title="Delete"
-                          >
-                            <Trash2 size={14} />
-                          </button>
-                        </div>
+                    </div>
+                    <div className="flex justify-between items-center mt-3 pt-3 border-t">
+                      <button onClick={() => handleToggleStatus(g)} className={`text-xs font-medium px-2 py-1 rounded ${g.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                        {g.isActive ? 'Active' : 'Inactive'}
+                      </button>
+                      <div className="flex gap-3">
+                        <button onClick={() => openGuideModal(g)} className="text-[#236F21]"><Edit size={16} /></button>
+                        <button onClick={() => handleDeleteGuide(g._id)} className="text-red-600"><Trash2 size={16} /></button>
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
-            </div>
-          </>
-        )}
+            </>
+          )}
+        </div>
+      )}
 
-        {/* Empty State */}
-        {filteredGuides.length === 0 && !loader && (
-          <div className="text-center py-12">
-            <div className="w-16 h-16 sm:w-24 sm:h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Search className="text-gray-400" size={32} />
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              {searchTerm ? 'No guides found' : 'No guides yet'}
-            </h3>
-            <p className="text-gray-600 mb-6 text-sm sm:text-base">
-              {searchTerm
-                ? 'Try adjusting your search criteria'
-                : 'Get started by creating your first guide'
-              }
-            </p>
-            {!searchTerm && (
-              <button
-                onClick={() => openGuideModal()}
-                className="bg-[#236F21] text-white px-6 py-2 rounded-lg hover:bg-[#1B5C1A] transition-colors shadow-sm text-sm sm:text-base"
-              >
-                Create Guide
-              </button>
-            )}
+
+      {/* ---------------- Categories Tab ---------------- */}
+      {activeTab === 'categories' && (
+        <div className="bg-white rounded-lg shadow-sm sm:shadow">
+          <div className="p-4 sm:p-6 border-b border-gray-200">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-800">All Categories</h2>
           </div>
-        )}
-      </div>
+
+          {loader ? (
+            <div className="flex justify-center items-center py-20">
+              <Loader className="animate-spin text-[#236F21]" size={40} />
+            </div>
+          ) : categories.length === 0 ? (
+            <div className="p-8 text-center text-gray-500">No categories found</div>
+          ) : (
+            <div className="divide-y divide-gray-200">
+              {categories.map(c => (
+                <div key={c._id} className="p-4 flex justify-between items-center hover:bg-gray-50">
+                  <span className="font-medium text-gray-900">{c.name}</span>
+                  <button
+                    onClick={() => handleDeleteCategory(c._id)}
+                    className="text-red-600 hover:bg-red-50 p-2 rounded transition-colors"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* ---------------- Guide Modal ---------------- */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden mx-2 sm:mx-4 flex flex-col">
-            <div className="flex justify-between items-center p-4 sm:p-6 border-b flex-shrink-0">
-              <h2 className="text-lg sm:text-xl font-semibold">
-                {editingGuide ? 'Edit Guide' : 'Create New Guide'}
-              </h2>
-              <button
-                onClick={closeGuideModal}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <X size={20} />
-              </button>
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="flex justify-between items-center p-6 border-b">
+              <h2 className="text-xl font-semibold">{editingGuide ? 'Edit Guide' : 'Create New Guide'}</h2>
+              <button onClick={closeGuideModal} className="p-2 hover:bg-gray-100 rounded-lg"><X size={20} /></button>
             </div>
-
-            <form onSubmit={handleAddOrUpdateGuide} className="p-4 sm:p-6 space-y-4 overflow-y-auto flex-1 no-scrollbar">
+            <form onSubmit={handleAddOrUpdateGuide} className="p-6 space-y-4 overflow-y-auto">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Category <span className="text-red-500">*</span>
-                </label>
+                <label className="block text-sm font-medium mb-1">Category *</label>
                 <select
-                  value={guideData.categoryId}
                   name="categoryId"
+                  value={guideData.categoryId}
                   onChange={handleGuideChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#236F21] focus:border-[#236F21] text-sm sm:text-base"
+                  className="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-[#236F21]"
                   required
                 >
                   <option value="">Select Category</option>
                   {categories.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
                 </select>
               </div>
-
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Heading <span className="text-red-500">*</span>
-                </label>
+                <label className="block text-sm font-medium mb-1">Heading *</label>
                 <input
                   type="text"
                   name="heading"
                   value={guideData.heading}
                   onChange={handleGuideChange}
-                  placeholder="Enter guide heading"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#236F21] focus:border-[#236F21] text-sm sm:text-base"
+                  className="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-[#236F21]"
                   required
                 />
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Level <span className="text-red-500">*</span>
-                </label>
-                <select
-                  value={guideData.level}
-                  name="level"
-                  onChange={handleGuideChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#236F21] focus:border-[#236F21] text-sm sm:text-base"
-                  required
-                >
-                  <option value="">Select Level</option>
-                  {LEVELS.map(level => (
-                    <option key={level} value={level}>{level}</option>
-                  ))}
-                </select>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Level *</label>
+                  <select
+                    name="level"
+                    value={guideData.level}
+                    onChange={handleGuideChange}
+                    className="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-[#236F21]"
+                    required
+                  >
+                    <option value="">Select Level</option>
+                    {LEVELS.map(l => <option key={l} value={l}>{l}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Second Heading</label>
+                  <input
+                    type="text"
+                    name="secondHeading"
+                    value={guideData.secondHeading}
+                    onChange={handleGuideChange}
+                    className="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-[#236F21]"
+                  />
+                </div>
               </div>
-
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Second Heading
-                </label>
-                <input
-                  type="text"
-                  name="secondHeading"
-                  value={guideData.secondHeading}
-                  onChange={handleGuideChange}
-                  placeholder="Enter second heading"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#236F21] focus:border-[#236F21] text-sm sm:text-base"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Description <span className="text-red-500">*</span>
-                </label>
+                <label className="block text-sm font-medium mb-1">Description *</label>
                 <textarea
                   name="description"
                   value={guideData.description}
                   onChange={handleGuideChange}
-                  placeholder="Enter guide description"
                   rows={4}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#236F21] focus:border-[#236F21] text-sm sm:text-base"
+                  className="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-[#236F21]"
                   required
                 />
               </div>
-
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Image
-                </label>
-                <input
-                  type="file"
-                  name="image"
-                  onChange={handleGuideChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#236F21] focus:border-[#236F21] text-sm sm:text-base"
-                />
+                <label className="block text-sm font-medium mb-1">Image</label>
+                <input type="file" name="image" onChange={handleGuideChange} className="w-full border rounded-lg p-2" />
               </div>
-
-              <div className="flex gap-3 justify-end pt-6 border-t border-gray-200 mt-6">
-                <button
-                  type="button"
-                  onClick={closeGuideModal}
-                  className="flex-1 sm:flex-none px-4 sm:px-6 py-2 text-gray-600 hover:text-gray-800 transition-colors border border-gray-300 rounded-lg hover:border-gray-400 text-sm sm:text-base"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={loader}
-                  className="flex-1 sm:flex-none bg-[#236F21] text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-[#1B5C1A] disabled:opacity-50 transition-colors flex items-center gap-2 justify-center shadow-sm text-sm sm:text-base"
-                >
-                  {loader && <Loader size={16} className="animate-spin" />}
-                  {editingGuide ? 'Update Guide' : 'Create Guide'}
+              <div className="pt-4 flex justify-end gap-3">
+                <button type="button" onClick={closeGuideModal} className="px-4 py-2 border rounded-lg hover:bg-gray-50">Cancel</button>
+                <button type="submit" disabled={loader} className="px-6 py-2 bg-[#236F21] text-white rounded-lg hover:bg-[#1B5C1A]">
+                  {loader ? 'Saving...' : (editingGuide ? 'Update' : 'Create')}
                 </button>
               </div>
             </form>
@@ -594,7 +497,34 @@ const GuidesManager = () => {
         </div>
       )}
 
-      {/* Custom Confirm Dialog */}
+      {/* ---------------- Category Modal ---------------- */}
+      {showCategoryModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md">
+            <div className="flex justify-between items-center p-6 border-b">
+              <h3 className="text-lg font-semibold">Add Category</h3>
+              <button onClick={() => setShowCategoryModal(false)} className="p-2 hover:bg-gray-100 rounded-lg"><X size={20} /></button>
+            </div>
+            <form onSubmit={handleAddCategory} className="p-6">
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-1">Category Name *</label>
+                <input
+                  type="text"
+                  value={categoryName}
+                  onChange={(e) => setCategoryName(e.target.value)}
+                  className="w-full border rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-[#236F21]"
+                  autoFocus
+                />
+              </div>
+              <div className="flex justify-end gap-3">
+                <button type="button" onClick={() => setShowCategoryModal(false)} className="px-4 py-2 border rounded-lg hover:bg-gray-50">Cancel</button>
+                <button type="submit" className="px-4 py-2 bg-[#236F21] text-white rounded-lg hover:bg-[#1B5C1A]">Add</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       <ConfirmDialog {...dialogConfig} />
     </div>
   );
