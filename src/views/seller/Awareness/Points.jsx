@@ -139,15 +139,6 @@ const Points = () => {
 
         {/* Points Cards */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <div className="p-4 border-b border-gray-200 bg-gray-50">
-            <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
-              Community Metrics
-            </h2>
-            <p className="text-gray-600 text-sm mt-1">
-              Real-time statistics of community engagement
-            </p>
-          </div>
-
           <div className="p-4">
             {loader && !isEditing ? (
               <div className="flex justify-center items-center py-12">
@@ -160,43 +151,28 @@ const Points = () => {
                     key={field.key}
                     className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 p-4"
                   >
-                    {/* Icon and Input/Value Row */}
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-2xl">{field.icon}</span>
-                      {isEditing && (
-                        <div className="w-20">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-base font-medium text-gray-700">
+                        {field.label}
+                      </h3>
+
+                      {isEditing ? (
+                        <div className="w-24">
                           <input
                             type="number"
                             name={field.key}
                             value={formData[field.key]}
                             onChange={handleInputChange}
-                            className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#236F21] focus:ring-[#236F21] text-sm py-2 px-3 text-center"
+                            className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#236F21] focus:ring-[#236F21] text-sm py-2 px-3 text-right"
                             min="0"
                           />
                         </div>
+                      ) : (
+                        <p className="text-xl sm:text-2xl font-bold text-[#236F21]">
+                          {points?.[field.key]?.toLocaleString() || 0}
+                        </p>
                       )}
                     </div>
-
-                    {/* Label */}
-                    <h3 className="text-sm font-medium text-gray-700 mb-2">
-                      {field.label}
-                    </h3>
-
-                    {/* Value Display */}
-                    {!isEditing && (
-                      <p className="text-2xl font-bold text-[#236F21]">
-                        {points?.[field.key]?.toLocaleString() || 0}
-                      </p>
-                    )}
-
-                    {/* Status Info */}
-                    {!isEditing && (
-                      <div className="mt-3 pt-3 border-t border-gray-100">
-                        <p className="text-xs text-gray-500">
-                          Updated metrics
-                        </p>
-                      </div>
-                    )}
                   </div>
                 ))}
               </div>
