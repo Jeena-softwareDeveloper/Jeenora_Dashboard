@@ -87,7 +87,7 @@ const Login = () => {
                     <div className="relative">
                         <div className="flex justify-between items-center mb-1 ml-1">
                             <label htmlFor="password" className="text-white text-xs">Password</label>
-                            <Link to="/forgot-password" className="text-green-300 text-xs hover:text-green-200 transition-colors">Forgot password?</Link>
+
                         </div>
                         <div className="relative">
                             <input
@@ -125,11 +125,7 @@ const Login = () => {
                     </button>
 
                     {/* Sign Up Link */}
-                    <div className="text-center mt-4">
-                        <p className="text-sm text-gray-200">
-                            Don't have an account? <Link className="font-bold text-white hover:underline" to="/register">Sign up</Link>
-                        </p>
-                    </div>
+
                 </form>
             </div>
         </div>
