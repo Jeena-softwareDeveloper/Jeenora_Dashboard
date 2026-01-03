@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -5,7 +6,6 @@ import {
   deleteUser,
   clearUserSessions
 } from "../../../../store/Reducers/Awareness/analyticsReducer";
-import UAParser from "ua-parser-js";
 
 const UserDetailModal = ({ userId, onClose }) => {
   const dispatch = useDispatch();
@@ -33,14 +33,14 @@ const UserDetailModal = ({ userId, onClose }) => {
         isOpen: true,
         type: 'user',
         title: 'Delete User',
-        message: `Are you sure you want to delete user "${userDetails?.user_id}"? This will permanently remove all user data including sessions and events.`
+        message: `Are you sure you want to delete user "${userDetails?.user_id}" ? This will permanently remove all user data including sessions and events.`
       });
     } else if (type === 'sessions') {
       setDeleteModal({
         isOpen: true,
         type: 'sessions',
         title: 'Clear User Sessions',
-        message: `Are you sure you want to clear all sessions for user "${userDetails?.user_id}"? This will reset their session history but keep the user profile.`
+        message: `Are you sure you want to clear all sessions for user "${userDetails?.user_id}" ? This will reset their session history but keep the user profile.`
       });
     }
   }, [userDetails]);
@@ -77,11 +77,11 @@ const UserDetailModal = ({ userId, onClose }) => {
     const secs = Math.round((minutes % 1) * 60);
 
     if (hours > 0) {
-      return `${hours}h ${mins}m ${secs}s`;
+      return `${hours}h ${mins}m ${secs} s`;
     } else if (mins > 0) {
-      return `${mins}m ${secs}s`;
+      return `${mins}m ${secs} s`;
     } else {
-      return `${secs}s`;
+      return `${secs} s`;
     }
   }, []);
 
@@ -110,47 +110,6 @@ const UserDetailModal = ({ userId, onClose }) => {
   const acquisitionSources = useMemo(() => {
     return userDetails?.acquisition?.sources || [];
   }, [userDetails?.acquisition?.sources]);
-
-  // Memoized device info parsing
-  const parsedDeviceInfo = useMemo(() => {
-    if (!userDetails?.device) return {};
-
-    // If we have raw user agent string or "Win32", try to parse it
-    const uaParser = new UAParser();
-
-    // Check if browser field looks like a user agent string
-    const browserStr = userDetails.device.browser || '';
-    const osStr = userDetails.device.os || '';
-
-    // Use the stored User Agent if available, otherwise try to use the browser field if it looks like a UA
-    const uaString = userDetails.device.user_agent || (browserStr.includes('Mozilla') ? browserStr : '');
-
-    if (uaString) {
-      uaParser.setUA(uaString);
-      const result = uaParser.getResult();
-
-      return {
-        os: `${result.os.name || 'Windows'} ${result.os.version || ''}`.trim(),
-        browser: `${result.browser.name || 'Unknown'} ${result.browser.version || ''}`.trim(),
-        device_type: result.device.type || userDetails.device.device_type || 'desktop',
-        screen_resolution: userDetails.device.screen_resolution,
-        language: userDetails.device.language
-      };
-    }
-
-    // Fallback for simple "Win32" case if no UA string
-    let displayOS = osStr;
-    if (osStr === 'Win32') displayOS = 'Windows';
-    if (osStr === 'MacIntel') displayOS = 'macOS';
-
-    return {
-      os: displayOS,
-      browser: browserStr,
-      device_type: userDetails.device.device_type,
-      screen_resolution: userDetails.device.screen_resolution,
-      language: userDetails.device.language
-    };
-  }, [userDetails?.device]);
 
   // Close modal on Escape key
   useEffect(() => {
@@ -212,16 +171,16 @@ const UserDetailModal = ({ userId, onClose }) => {
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  <div className={`px-3 py-1 rounded-full text-sm font-medium ${userDetails.is_online
+                  <div className={`px - 3 py - 1 rounded - full text - sm font - medium ${userDetails.is_online
                     ? 'bg-green-100 text-green-800 border border-green-200'
                     : 'bg-gray-100 text-gray-800 border border-gray-200'
-                    }`}>
+                    } `}>
                     {userDetails.is_online ? '🟢 Online' : '⚫ Offline'}
                   </div>
-                  <div className={`px-3 py-1 rounded-full text-sm font-medium ${userDetails.status === 'new'
+                  <div className={`px - 3 py - 1 rounded - full text - sm font - medium ${userDetails.status === 'new'
                     ? 'bg-green-100 text-green-800 border border-green-200'
                     : 'bg-blue-100 text-blue-800 border border-blue-200'
-                    }`}>
+                    } `}>
                     {userDetails.status === 'new' ? '🆕 New User' : '🔄 Returning User'}
                   </div>
                 </div>
@@ -283,15 +242,15 @@ const UserDetailModal = ({ userId, onClose }) => {
                   <button
                     key={tab.key}
                     onClick={() => setActiveTab(tab.key)}
-                    className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap flex items-center gap-2 ${activeTab === tab.key
+                    className={`py - 2 px - 1 border - b - 2 font - medium text - sm whitespace - nowrap flex items - center gap - 2 ${activeTab === tab.key
                       ? "border-blue-500 text-blue-600"
                       : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                      }`}
+                      } `}
                   >
                     {tab.label}
                     {tab.count !== null && (
-                      <span className={`px-1.5 py-0.5 rounded-full text-xs ${activeTab === tab.key ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600'
-                        }`}>
+                      <span className={`px - 1.5 py - 0.5 rounded - full text - xs ${activeTab === tab.key ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600'
+                        } `}>
                         {tab.count}
                       </span>
                     )}
@@ -301,7 +260,7 @@ const UserDetailModal = ({ userId, onClose }) => {
             </div>
 
             {/* Overview Tab */}
-            {activeTab === "overview" && <OverviewTab userDetails={userDetails} deviceInfo={parsedDeviceInfo} formatDuration={formatDuration} formatDate={formatDate} />}
+            {activeTab === "overview" && <OverviewTab userDetails={userDetails} formatDuration={formatDuration} formatDate={formatDate} />}
 
             {/* Sessions Tab */}
             {activeTab === "sessions" && (
@@ -421,7 +380,7 @@ const DeleteConfirmationModal = ({ isOpen, title, message, loading, onConfirm, o
 };
 
 // Sub-components for better organization
-const OverviewTab = ({ userDetails, deviceInfo, formatDuration, formatDate }) => (
+const OverviewTab = ({ userDetails, formatDuration, formatDate }) => (
   <div className="space-y-6">
     {/* Engagement Stats */}
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -450,11 +409,11 @@ const OverviewTab = ({ userDetails, deviceInfo, formatDuration, formatDate }) =>
     {/* Device & Location */}
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <InfoCard title="💻 Device Info">
-        <InfoItem label="OS" value={deviceInfo?.os || userDetails.device?.os} />
-        <InfoItem label="Browser" value={deviceInfo?.browser || userDetails.device?.browser} />
-        <InfoItem label="Device Type" value={deviceInfo?.device_type || userDetails.device?.device_type} />
-        <InfoItem label="Screen" value={deviceInfo?.screen_resolution || userDetails.device?.screen_resolution} />
-        <InfoItem label="Language" value={deviceInfo?.language || userDetails.device?.language} />
+        <InfoItem label="OS" value={userDetails.device?.os} />
+        <InfoItem label="Browser" value={userDetails.device?.browser} />
+        <InfoItem label="Device Type" value={userDetails.device?.device_type} />
+        <InfoItem label="Screen" value={userDetails.device?.screen_resolution} />
+        <InfoItem label="Language" value={userDetails.device?.language} />
       </InfoCard>
 
       <InfoCard title="🌍 Location">
@@ -602,8 +561,8 @@ const StatCard = ({ label, value, bgColor = "blue" }) => {
   const color = colors[bgColor];
 
   return (
-    <div className={`p-4 rounded-lg border ${color.bg} ${color.border}`}>
-      <p className={`text-sm font-medium ${color.text}`}>{label}</p>
+    <div className={`p - 4 rounded - lg border ${color.bg} ${color.border} `}>
+      <p className={`text - sm font - medium ${color.text} `}>{label}</p>
       <p className="text-2xl font-bold text-gray-800 mt-1">{value}</p>
     </div>
   );
@@ -619,7 +578,7 @@ const InfoCard = ({ title, children }) => (
 const InfoItem = ({ label, value, capitalize = false }) => (
   <p className="flex justify-between items-center py-1">
     <strong className="text-gray-700">{label}:</strong>
-    <span className={`text-gray-600 ${capitalize ? 'capitalize' : ''}`}>
+    <span className={`text - gray - 600 ${capitalize ? 'capitalize' : ''} `}>
       {value || 'Unknown'}
     </span>
   </p>
@@ -653,10 +612,10 @@ const SessionRow = ({ session, formatDuration, formatDate, formatTime }) => (
       </span>
     </td>
     <td className="px-4 py-3 text-center">
-      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs ${session.is_active
+      <span className={`inline - flex items - center px - 2 py - 1 rounded - full text - xs ${session.is_active
         ? 'bg-green-100 text-green-800 border border-green-200'
         : 'bg-gray-100 text-gray-800 border border-gray-200'
-        }`}>
+        } `}>
         {session.is_active ? '🟢 Active' : '⚫ Closed'}
       </span>
     </td>
